@@ -1,14 +1,14 @@
 import { withMaterialTailwind } from "@material-tailwind/react/utils/withMT"
-import defaultConfig from "shadcn/ui/tailwind.config"
 
 export default withMaterialTailwind({
-  ...defaultConfig,
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}", "*.{js,ts,jsx,tsx,mdx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "*.{js,ts,jsx,tsx,mdx}",
+  ],
   theme: {
-    ...defaultConfig.theme,
     extend: {
       colors: {
-        ...defaultConfig.theme.extend.colors,
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -104,5 +104,6 @@ export default withMaterialTailwind({
       },
     },
   },
-  plugins: [...defaultConfig.plugins, require("tailwindcss-animate")],
+  darkMode: "class",
+  plugins: [require("tailwindcss-animate")],
 })

@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Navbar as MTNavbar,
-  Typography,
   Button,
   IconButton,
   Collapse,
@@ -17,7 +16,6 @@ import { Bars3Icon, XMarkIcon, Cog6ToothIcon, PowerIcon } from "@heroicons/react
 import { FaCalendarAlt, FaUsers } from "react-icons/fa"
 import MedixCampLogo from "../MedixCampLogo/MedixCampLogo"
 import useAuth from "../../../hooks/useAuth"
-
 
 const Navbar = () => {
   const [openNav, setOpenNav] = useState(false)
@@ -35,7 +33,11 @@ const Navbar = () => {
   }, [])
 
   useEffect(() => {
-    window.addEventListener("resize", () => window.innerWidth >= 960 && setOpenNav(false))
+    const handleResize = () => {
+      if (window.innerWidth >= 960) setOpenNav(false)
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
   }, [])
 
   const handleLogout = async () => {
@@ -55,7 +57,7 @@ const Navbar = () => {
   const navList = (
     <ul className="flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-8">
       {navItems.map((item) => (
-        <Typography key={item.name} as="li" variant="small" className="p-1 font-medium">
+        <li key={item.name} className="p-1 font-medium list-none">
           <Link
             to={item.path}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-blue-50 ${
@@ -65,9 +67,9 @@ const Navbar = () => {
             }`}
           >
             {item.icon && <item.icon className="h-4 w-4" />}
-            {item.name}
+            <p>{item.name}</p>
           </Link>
-        </Typography>
+        </li>
       ))}
     </ul>
   )
@@ -87,7 +89,9 @@ const Navbar = () => {
             className="border-2 border-blue-500 p-0.5"
             src={
               user?.photoURL ||
-              `https://ui-avatars.com/api/?name=${user?.displayName || "User"}&background=0ea5e9&color=fff`
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                user?.displayName || "User"
+              )}&background=0ea5e9&color=fff`
             }
           />
         </Button>
@@ -95,9 +99,9 @@ const Navbar = () => {
       <MenuList className="p-2 shadow-xl border-0">
         {/* Username - Not clickable */}
         <div className="px-3 py-2 border-b border-gray-200 mb-2">
-          <Typography variant="small" className="font-semibold text-gray-800">
+          <p className="font-semibold text-gray-800 text-sm">
             {user?.displayName || "User"}
-          </Typography>
+          </p>
         </div>
 
         {/* Dashboard */}
@@ -106,9 +110,7 @@ const Navbar = () => {
           className="flex items-center gap-3 rounded-lg hover:bg-blue-50 focus:bg-blue-50 p-3"
         >
           <Cog6ToothIcon className="h-5 w-5 text-blue-600" strokeWidth={2} />
-          <Typography variant="small" className="font-semibold text-gray-800">
-            Dashboard
-          </Typography>
+          <p className="font-semibold text-gray-800 text-sm">Dashboard</p>
         </MenuItem>
 
         {/* Logout */}
@@ -117,9 +119,7 @@ const Navbar = () => {
           className="flex items-center gap-3 rounded-lg hover:bg-red-50 focus:bg-red-50 p-3"
         >
           <PowerIcon className="h-5 w-5 text-red-500" strokeWidth={2} />
-          <Typography variant="small" className="font-semibold text-red-500">
-            Logout
-          </Typography>
+          <p className="font-semibold text-red-500 text-sm">Logout</p>
         </MenuItem>
       </MenuList>
     </Menu>
@@ -143,12 +143,10 @@ const Navbar = () => {
               <div className="absolute inset-0 bg-blue-500 rounded-full opacity-0 group-hover:opacity-20 transition-opacity"></div>
             </div>
             <div>
-              <Typography className="font-bold text-xl bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+              <h1 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                 Medix Care
-              </Typography>
-              <Typography variant="small" className="text-gray-500 text-xs">
-                Healthcare for All
-              </Typography>
+              </h1>
+              <p className="text-gray-500 text-xs">Healthcare for All</p>
             </div>
           </Link>
 
@@ -184,7 +182,7 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             <IconButton
               variant="text"
-              className="ml-auto h-6 w-6 text-inherit hover:bg-blue-50 focus:bg-blue-50 active:bg-blue-50 lg:hidden rounded-lg"
+              className="ml-auto h-6 w-6 text-blue-600 hover:bg-blue-50 focus:bg-blue-50 active:bg-blue-50 lg:hidden rounded-lg"
               ripple={false}
               onClick={() => setOpenNav(!openNav)}
             >
@@ -240,4 +238,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar;
+export default Navbar

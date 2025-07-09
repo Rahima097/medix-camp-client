@@ -1,5 +1,5 @@
-import { Typography, Button, Input } from "@material-tailwind/react"
-import { motion } from "framer-motion"
+import { Button, Input } from "@material-tailwind/react";
+import { motion } from "framer-motion";
 import {
   FaFacebook,
   FaTwitter,
@@ -12,11 +12,11 @@ import {
   FaStethoscope,
   FaUserMd,
   FaAmbulance,
-} from "react-icons/fa"
-import MedixCampLogo from "../MedixCampLogo/MedixCampLogo"
+} from "react-icons/fa";
+import MedixCampLogo from "../MedixCampLogo/MedixCampLogo";
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   const footerSections = [
     {
@@ -46,26 +46,26 @@ const Footer = () => {
         { name: "Support", href: "/support" },
       ],
     },
-  ]
+  ];
 
   const contactInfo = [
-    { icon: FaPhone, text: "+1 (555) 123-4567", href: "tel:+15551234567" },
+    { icon: FaPhone, text: "(+880)1913336446", href: "tel:+8801913336446" },
     { icon: FaEnvelope, text: "info@medixcare.com", href: "mailto:info@medixcare.com" },
-    { icon: FaMapMarkerAlt, text: "123 Healthcare Ave, Medical City, MC 12345", href: "#" },
-  ]
+    { icon: FaMapMarkerAlt, text: "123 Healthcare, Dhaka City, BD", href: "#" },
+  ];
 
   const socialLinks = [
     { icon: FaFacebook, href: "#", color: "hover:text-blue-600", bg: "hover:bg-blue-50" },
     { icon: FaTwitter, href: "#", color: "hover:text-blue-400", bg: "hover:bg-blue-50" },
     { icon: FaInstagram, href: "#", color: "hover:text-pink-500", bg: "hover:bg-pink-50" },
     { icon: FaLinkedin, href: "#", color: "hover:text-blue-700", bg: "hover:bg-blue-50" },
-  ]
+  ];
 
   const medicalIcons = [
     { icon: FaStethoscope, delay: 0 },
     { icon: FaUserMd, delay: 0.2 },
     { icon: FaAmbulance, delay: 0.4 },
-  ]
+  ];
 
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white relative overflow-hidden">
@@ -105,13 +105,12 @@ const Footer = () => {
               ))}
             </div>
 
-            <Typography variant="h2" className="mb-4 font-bold text-white">
+            <h2 className="mb-4 font-bold text-white text-3xl md:text-4xl">
               Stay Connected with Healthcare
-            </Typography>
-            <Typography className="mb-8 text-blue-100 text-lg max-w-2xl mx-auto">
-              Get the latest updates on medical camps, health tips, and community wellness programs delivered to your
-              inbox.
-            </Typography>
+            </h2>
+            <p className="mb-8 text-blue-100 text-lg max-w-2xl mx-auto">
+              Get the latest updates on medical camps, health tips, and community wellness programs delivered to your inbox.
+            </p>
 
             <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
               <div className="flex-1">
@@ -134,10 +133,9 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Main Footer Content */}
-      <div className="relative container mx-auto px-4 py-16">
+      {/* Main Footer */}
+      <div className="relative container mx-auto w-11/12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Brand Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -147,21 +145,16 @@ const Footer = () => {
             <div className="flex items-center gap-3 mb-6">
               <MedixCampLogo className="h-12 w-12" />
               <div>
-                <Typography variant="h4" className="font-bold text-white">
-                  Medix Care
-                </Typography>
-                <Typography variant="small" className="text-blue-200">
-                  Healthcare for Everyone
-                </Typography>
+                <h4 className="font-bold text-white text-xl">Medix Care</h4>
+                <small className="text-blue-200 block">Healthcare for Everyone</small>
               </div>
             </div>
 
-            <Typography className="text-gray-300 mb-6 leading-relaxed">
+            <p className="text-gray-300 mb-6 leading-relaxed">
               Bridging the gap between communities and quality healthcare through innovative medical camp management.
               Making healthcare accessible, affordable, and available to all.
-            </Typography>
+            </p>
 
-            {/* Contact Info */}
             <div className="space-y-4 mb-6">
               {contactInfo.map((item, index) => (
                 <motion.a
@@ -173,12 +166,11 @@ const Footer = () => {
                   <div className="p-2 rounded-lg bg-blue-600/20 group-hover:bg-blue-600/30 transition-colors">
                     <item.icon className="h-4 w-4" />
                   </div>
-                  <Typography variant="small">{item.text}</Typography>
+                  <small>{item.text}</small>
                 </motion.a>
               ))}
             </div>
 
-            {/* Social Links */}
             <div className="flex gap-3">
               {socialLinks.map((social, index) => (
                 <motion.a
@@ -194,7 +186,6 @@ const Footer = () => {
             </div>
           </motion.div>
 
-          {/* Footer Links */}
           {footerSections.map((section, index) => (
             <motion.div
               key={section.title}
@@ -202,9 +193,7 @@ const Footer = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Typography variant="h6" className="mb-4 font-semibold text-white">
-                {section.title}
-              </Typography>
+              <h6 className="mb-4 font-semibold text-white text-lg">{section.title}</h6>
               <ul className="space-y-3">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
@@ -225,27 +214,26 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="relative border-t border-gray-700 bg-gray-900/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container w-11/12 mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <Typography variant="small" className="text-gray-400">
+            <small className="text-gray-400">
               © {currentYear} Medix Care. All rights reserved. | Privacy Policy | Terms of Service
-            </Typography>
+            </small>
             <div className="flex items-center gap-2 text-gray-400">
-              <Typography variant="small">Made with</Typography>
+              <small>Made with</small>
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
               >
                 <FaHeart className="text-red-500 h-4 w-4" />
               </motion.div>
-              <Typography variant="small">for global health</Typography>
+              <small>for global health</small>
             </div>
           </div>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
 export default Footer;
-

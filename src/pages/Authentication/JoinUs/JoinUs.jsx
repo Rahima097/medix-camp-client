@@ -126,26 +126,25 @@ const JoinUs = () => {
         >
           <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/90">
             <CardHeader
-              variant="gradient"
-              className="mb-4 grid h-24 place-items-center bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg"
+              className="pt-3 mt-4 grid h-16 text-center"
             >
-              <Typography variant="h3" color="white" className="font-bold">
+              <Typography className="text-3xl shadow-white text-blue-600 font-bold">
                 Sign In
               </Typography>
             </CardHeader>
 
-            <CardBody className="flex flex-col gap-4 p-6">
+            <CardBody className="flex flex-col gap-2 p-6">
               <Typography variant="paragraph" className="text-center text-gray-600 mb-4">
                 Access your medical camp dashboard and continue your healthcare journey
               </Typography>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
                   <Input
                     type="email"
-                    label="Email Address"
+                    placeholder="Email Address"
                     size="lg"
-                    className="!border-gray-300 focus:!border-blue-500"
+                    className="!border-gray-300 focus:!border-blue-500 rounded-xl"
                     {...register("email", {
                       required: "Email is required",
                       pattern: {
@@ -165,9 +164,9 @@ const JoinUs = () => {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    label="Password"
+                    placeholder="Password"
                     size="lg"
-                    className="!border-gray-300 focus:!border-blue-500"
+                    className="!border-gray-300 focus:!border-blue-500 rounded-xl"
                     {...register("password", {
                       required: "Password is required",
                       minLength: {
@@ -202,7 +201,7 @@ const JoinUs = () => {
                     <Spinner size="sm" className="mx-auto" />
                   ) : (
                     <div className="flex items-center justify-center gap-2">
-                      <FaSignInAlt className="h-8 w-5" />
+                      <FaSignInAlt className="h-10 w-5" />
                       Sign In
                     </div>
                   )}
@@ -227,7 +226,7 @@ const JoinUs = () => {
                 disabled={isLoading}
                 size="lg"
               >
-                <FaGoogle className="text-red-500 h-8 w-5" />
+                <FaGoogle className="text-blue-600 h-8 w-5" />
                 <span className="font-medium">Sign in with Google</span>
               </Button>
             </CardBody>
