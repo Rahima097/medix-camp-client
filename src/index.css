@@ -101,3 +101,7 @@
 .stethoscope-animate {
   animation: stethoscope 2s ease-in-out infinite;
 }
+
+.menu-portal {
+  position: fixed !important;
+}

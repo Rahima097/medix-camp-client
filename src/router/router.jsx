@@ -6,6 +6,7 @@ import Home from "../pages/Home/Home/Home";
 import AuthLayout from "../layouts/AuthLayout";
 import Register from "../pages/Authentication/Register/Register";
 import JoinUs from "../pages/Authentication/JoinUs/JoinUs";
+import UserDashboard from "../pages/Dashboard/UserDashboard/UserDashboard";
 
 export const router = createBrowserRouter([
    // Public Routes
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
         element: <Register />,
       },
     ],
+  },
+  {
+    path: "/user-dashboard",
+    element: <UserDashboard />,
   },
   
 ]);
