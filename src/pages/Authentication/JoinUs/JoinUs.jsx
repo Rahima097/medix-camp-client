@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { Card, CardHeader, CardBody, CardFooter, Typography, Input, Button, Spinner } from "@material-tailwind/react"
 import { FaGoogle, FaEye, FaEyeSlash, FaSignInAlt, FaStethoscope, FaUserMd, FaShieldAlt } from "react-icons/fa"
 import useAuth from "../../../hooks/useAuth"
+import { toast } from "react-toastify"
 
 const JoinUs = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -37,6 +38,7 @@ const JoinUs = () => {
     setIsLoading(true)
     try {
       await googleSignIn()
+      toast.success("Google Signed in successfully!")
       navigate(from, { replace: true })
     } catch (error) {
       console.error("Google sign in error:", error)

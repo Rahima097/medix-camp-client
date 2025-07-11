@@ -25,7 +25,6 @@ import {
 } from "react-icons/fa";
 import useAuth from "../../../hooks/useAuth";
 import useAxios from "../../../hooks/useAxios";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -39,7 +38,6 @@ const Register = () => {
   const { createUser, googleSignIn, updateUserProfile } = useAuth();
   const axiosInstance = useAxios();
   const navigate = useNavigate();
-
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleImageUpload = async (e) => {
@@ -48,17 +46,27 @@ const Register = () => {
     setImageUploading(true);
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file);
+    formData.append("upload_preset", "medix_unsigned");
+    formData.append("folder", "medix/uploads");
 
     try {
-      const res = await axios.post(
-        `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`,
-        formData
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
       );
-      setProfilePic(res.data.data.url);
+      const data = await res.json();
+      if (data.secure_url) {
+        setProfilePic(data.secure_url);
+      } else {
+        throw new Error("Image URL not returned");
+      }
     } catch (error) {
       toast.error("Image upload failed");
-      console.error("Image upload failed", error);
+      console.error("Cloudinary Upload Error:", error);
     } finally {
       setImageUploading(false);
     }
@@ -86,13 +94,6 @@ const Register = () => {
 
       await axiosInstance.post("/users", userInfo);
 
-      Swal.fire({
-        icon: "success",
-        title: "Registration Successful",
-        text: "Welcome to Medix Camp!",
-        confirmButtonColor: "#3085d6",
-      });
-
       navigate("/user-dashboard");
     } catch (e) {
       console.error("Registration Error:", e);
@@ -105,17 +106,38 @@ const Register = () => {
   const handleGoogleSignUp = async () => {
     setIsLoading(true);
     try {
-      await googleSignIn();
+      const result = await googleSignIn();
+      const user = result.user;
 
-      Swal.fire({
-        icon: "success",
-        title: "Login Successful",
-        text: "Welcome back to Medix Camp!",
-        confirmButtonColor: "#3085d6",
-      });
+      const userInfo = {
+        email: user.email,
+        name: user.displayName,
+        photo: user.photoURL,
+        role: "user",
+        created_at: new Date().toISOString(),
+        last_log_in: new Date().toISOString(),
+      };
 
+      // 🔎 Check if user already exists in DB
+      let exists = false;
+      try {
+        const res = await axiosInstance.get(`/users?email=${user.email}`);
+        if (res.data?.email) exists = true;
+      } catch (err) {
+        if (err.response?.status !== 404) {
+          toast.error("Something went wrong");
+          return;
+        }
+      }
+
+      //  If user not found, add to DB
+      if (!exists) {
+        await axiosInstance.post("/users", userInfo);
+      }
+      toast.success("Google Register is successfully!")
       navigate("/user-dashboard");
-    } catch {
+    } catch (error) {
+      console.error("Google Sign-in Error:", error);
       toast.error("Google Sign-in failed.");
     } finally {
       setIsLoading(false);
@@ -137,7 +159,6 @@ const Register = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-center">
-        {/* Left Panel */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -174,7 +195,6 @@ const Register = () => {
           </div>
         </motion.div>
 
-        {/* Right Panel */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}

@@ -6,7 +6,7 @@ import Home from "../pages/Home/Home/Home";
 import AuthLayout from "../layouts/AuthLayout";
 import Register from "../pages/Authentication/Register/Register";
 import JoinUs from "../pages/Authentication/JoinUs/JoinUs";
-import UserDashboard from "../pages/Dashboard/UserDashboard/UserDashboard";
+import UserDashboard from "../pages/User/UserDashboard";
 
 export const router = createBrowserRouter([
    // Public Routes

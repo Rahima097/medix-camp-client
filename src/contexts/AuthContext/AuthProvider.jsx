@@ -41,7 +41,7 @@ const AuthProvider = ({ children }) => {
       await updateProfile(result.user, {
         displayName: name,
       })
-      toast.success("Account created successfully!")
+      toast.success("Registration Successful! Welcome to Medix Camp.")
       return result
     } catch (error) {
       toast.error(error.message)
@@ -71,7 +71,7 @@ const AuthProvider = ({ children }) => {
     setLoading(true)
     try {
       const result = await signInWithPopup(auth, googleProvider)
-      toast.success("Signed in with Google successfully!")
+      
       return result
     } catch (error) {
       toast.error(error.message)
@@ -102,7 +102,7 @@ const AuthProvider = ({ children }) => {
         photoURL: photoURL,
       })
       setUser({ ...auth.currentUser })
-      toast.success("Profile updated successfully!")
+      // toast.success("Profile updated successfully!")
     } catch (error) {
       toast.error(error.message)
       throw error
