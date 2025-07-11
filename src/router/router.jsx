@@ -7,6 +7,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import Register from "../pages/Authentication/Register/Register";
 import JoinUs from "../pages/Authentication/JoinUs/JoinUs";
 import UserDashboard from "../pages/User/UserDashboard";
+import AddCamp from "../pages/Organizer/AddCamp";
 
 export const router = createBrowserRouter([
    // Public Routes
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
   {
     path: "/user-dashboard",
     element: <UserDashboard />,
+  },
+   {
+    path: "/add-camp",
+    element: <AddCamp />,
   },
   
 ]);
