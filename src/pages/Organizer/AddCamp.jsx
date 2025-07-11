@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -300,7 +298,7 @@ const AddCamp = () => {
                                                 className="flex items-center gap-2 mx-auto pointer-events-none"
                                                 disabled={imageUploading}
                                             >
-                                                {imageUploading ? <Spinner size="sm" /> : <FaUpload />}
+                                                {imageUploading ? <Spinner message="Uploading Image..." /> : <FaUpload />}
                                                 {imageUploading ? "Uploading..." : "Choose Image"}
                                             </Button>
                                         </label>

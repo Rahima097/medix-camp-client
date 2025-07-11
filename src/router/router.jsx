@@ -8,6 +8,8 @@ import Register from "../pages/Authentication/Register/Register";
 import JoinUs from "../pages/Authentication/JoinUs/JoinUs";
 import UserDashboard from "../pages/User/UserDashboard";
 import AddCamp from "../pages/Organizer/AddCamp";
+import AvailableCamps from "../pages/AvailableCamps/AvailableCamps";
+import CampDetails from './../pages/CampDetails/CampDetails';
 
 export const router = createBrowserRouter([
    // Public Routes
@@ -19,6 +21,12 @@ export const router = createBrowserRouter([
         index: true,
         element: <Home />,
       },
+      { path: "available-camps",
+        element: <AvailableCamps /> 
+      },
+      { path: "camp-details/:campId",
+        element: <CampDetails />
+       },
     ],
   },
 
