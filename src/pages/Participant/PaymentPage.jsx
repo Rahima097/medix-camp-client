@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PaymentForm = () => {
+const PaymentPage = () => {
     return (
         <div>
             
@@ -8,4 +8,4 @@ const PaymentForm = () => {
     );
 };
 
-export default PaymentForm;
+export default PaymentPage;
