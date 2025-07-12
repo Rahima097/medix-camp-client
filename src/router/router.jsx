@@ -10,6 +10,8 @@ import UserDashboard from "../pages/User/UserDashboard";
 import AddCamp from "../pages/Organizer/AddCamp";
 import AvailableCamps from "../pages/AvailableCamps/AvailableCamps";
 import CampDetails from './../pages/CampDetails/CampDetails';
+import NotFound from './../pages/NotFound/NotFound';
+import Forbidden from './../pages/Forbidden/Forbidden';
 
 export const router = createBrowserRouter([
    // Public Routes
@@ -52,6 +54,15 @@ export const router = createBrowserRouter([
    {
     path: "/add-camp",
     element: <AddCamp />,
+  },
+  {
+    path: "/forbidden",
+    element: <Forbidden />,
+  },
+
+  {
+    path: "*", 
+    element: <NotFound />,
   },
   
 ]);

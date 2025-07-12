@@ -1,11 +1,20 @@
-import React from 'react';
+import { Navigate, useLocation } from "react-router-dom"
+import useAuth from "../hooks/useAuth"
+import Loading from "../components/Loading"
 
-const PrivateRoute = () => {
-    return (
-        <div>
-            
-        </div>
-    );
-};
+const PrivateRoute = ({ children }) => {
+  const { user, loading } = useAuth()
+  const location = useLocation()
 
-export default PrivateRoute;
+  if (loading) {
+    return <Loading message="Checking authentication..." />
+  }
+
+  if (!user) {
+    return <Navigate to="/join-us" state={{ from: location }} replace />
+  }
+
+  return children
+}
+
+export default PrivateRoute
