@@ -122,11 +122,12 @@ const AvailableCamps = () => {
           </div>
           <div className="flex items-center gap-4 w-full md:w-1/2 lg:w-3/5 justify-end">
             {" "}
+            {/* Adjusted sort width and alignment */}
             <Select
               label="Sort by"
               value={sortOption}
               onChange={(v) => setSortOption(v)}
-              className="bg-gray-50 rounded-lg shadow-sm text-gray-800 w-full md:w-auto" 
+              className="bg-gray-50 rounded-lg shadow-sm text-gray-800 w-full md:w-auto" // Made sort wider
               labelProps={{ className: "text-gray-600" }}
             >
               <Option value="">Default</Option>
@@ -179,11 +180,11 @@ const AvailableCamps = () => {
                   </Typography>
                   <div className="text-gray-600 space-y-2 text-sm">
                     <div className="flex items-center gap-2">
-                      <FaDollarSign className="text-blue-600 text-base" /> 
+                      <FaDollarSign className="text-blue-600 text-base" /> {/* Changed to blue */}
                       <span className="font-semibold text-base">${camp.fees}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FaCalendarAlt className="text-blue-500 text-base" /> 
+                      <FaCalendarAlt className="text-blue-500 text-base" /> {/* Changed to blue */}
                       <span>
                         {new Date(camp.date).toLocaleDateString("en-US", {
                           year: "numeric",
@@ -194,15 +195,15 @@ const AvailableCamps = () => {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FaMapMarkerAlt className="text-blue-500 text-base" /> 
+                      <FaMapMarkerAlt className="text-blue-500 text-base" /> {/* Changed to blue */}
                       <span>{camp.venue}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FaUserMd className="text-blue-500 text-base" /> 
+                      <FaUserMd className="text-blue-500 text-base" /> {/* Changed to blue */}
                       <span>{camp.healthcare_professional}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FaUsers className="text-blue-500 text-base" /> 
+                      <FaUsers className="text-blue-500 text-base" /> {/* Changed to blue */}
                       <span>{camp.participant_count || 0} participants</span>
                     </div>
                   </div>
@@ -222,7 +223,7 @@ const AvailableCamps = () => {
               </Card>
             ))
           ) : (
-            <Typography className="col-span-full text-center text-gray-500 mt-20 text-2xl">
+            <Typography className="col-span-full text-center text-gray-500 mt-20 text-xl">
               No camps found matching your criteria.
             </Typography>
           )}
