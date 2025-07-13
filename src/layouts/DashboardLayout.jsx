@@ -61,7 +61,7 @@ const DashboardLayout = () => {
             }
             alt="profile-picture"
             size="lg"
-            className="rounded-full border-2 border-blue-gray-50 mt-4 mx-auto"
+            className="rounded-full h-20 w-20 border-2 border-blue-gray-50 mt-4 mx-auto"
           />
           <Typography variant="h5" color="blue-gray" className="mt-2">
             Welcome, {user?.displayName?.split(" ")[0] || "User"}!

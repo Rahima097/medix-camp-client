@@ -1,6 +1,8 @@
+"use client"
+
 import { useState, useMemo } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { motion } from "framer-motion" // Import motion from framer-motion
+import { motion } from "framer-motion"
 import { Card, Typography, Button, Input, Chip } from "@material-tailwind/react"
 import { FaSearch, FaBan, FaCommentDots, FaDollarSign, FaChevronLeft, FaChevronRight } from "react-icons/fa"
 import useAxios from "../../hooks/useAxios"
@@ -12,14 +14,30 @@ import FeedbackModal from "./FeedbackModal"
 import { useNavigate } from "react-router-dom"
 
 const fetchRegisteredCamps = async (axios, email) => {
-  if (!email) return []
-  const res = await axios.get(`/registrations?email=${email}`)
-  return res.data
+  console.log("Fetching registered camps for email:", email) // Debug: Check email being sent
+  if (!email) {
+    console.log("Email is null or undefined, skipping fetch.")
+    return []
+  }
+  try {
+    const res = await axios.get(`/registrations?email=${email}`)
+    console.log("API response for registrations:", res.data) // Debug: Log raw API response
+    return res.data
+  } catch (error) {
+    console.error("Error fetching registered camps from API:", error)
+    throw error // Re-throw to be caught by useQuery's onError
+  }
 }
 
 const RegisteredCamps = () => {
   const axios = useAxios()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth() // Get the user object and auth loading state
+
+  // Debug: Check the user object and email from useAuth
+  console.log("User object from useAuth in RegisteredCamps:", user)
+  console.log("User email from useAuth in RegisteredCamps:", user?.email)
+  console.log("Auth loading state:", authLoading)
+
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
@@ -33,12 +51,21 @@ const RegisteredCamps = () => {
     data: registrations = [],
     isLoading,
     isError,
+    error, // Capture the error object
   } = useQuery({
     queryKey: ["participantRegistrations", user?.email],
     queryFn: () => fetchRegisteredCamps(axios, user?.email),
-    enabled: !!user?.email,
-    onError: () => toast.error("Failed to load registered camps."),
+    enabled: !authLoading && !!user?.email, // Only run query if auth is not loading AND user.email exists
+    onError: (err) => {
+      console.error("useQuery error loading registered camps:", err) // Debug: Log query error
+      toast.error("Failed to load registered camps.")
+    },
   })
+
+  // Debug: Check the data received by the component after query
+  console.log("Registrations data received by component after useQuery:", registrations)
+  console.log("Is loading (useQuery):", isLoading)
+  console.log("Is error (useQuery):", isError, error)
 
   const filteredRegistrations = useMemo(() => {
     return registrations.filter(
@@ -64,8 +91,8 @@ const RegisteredCamps = () => {
   const submitFeedbackMutation = useMutation({
     mutationFn: (feedbackData) => axios.post("/feedbacks", feedbackData),
     onSuccess: () => {
-      queryClient.invalidateQueries(["feedbacks"])
-      queryClient.invalidateQueries(["participantRegistrations", user?.email]) 
+      queryClient.invalidateQueries(["feedbacks"]) // Invalidate home page feedbacks
+      queryClient.invalidateQueries(["participantRegistrations", user?.email]) // To disable feedback button
       toast.success("Feedback submitted successfully!")
       setOpenFeedbackModal(false)
       setSelectedCampForFeedback(null)
@@ -97,11 +124,12 @@ const RegisteredCamps = () => {
     setOpenFeedbackModal(true)
   }
 
-  if (isLoading) return <Loading message="Loading registered camps..." />
+  // Handle loading states
+  if (authLoading || isLoading) return <Loading message="Loading registered camps..." />
   if (isError)
     return (
       <Typography color="red" className="text-center mt-20">
-        Error loading registered camps.
+        Error loading registered camps: {error?.message || "Unknown error"}
       </Typography>
     )
 
@@ -302,4 +330,4 @@ const RegisteredCamps = () => {
   )
 }
 
-export default RegisteredCamps;
+export default RegisteredCamps
