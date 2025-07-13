@@ -202,7 +202,7 @@ const OrganizerProfile = () => {
       </Card>
 
       {/* Update Profile Modal */}
-      <Dialog open={showUpdateModal} handler={handleCloseUpdateModal} size="md" className="mx-auto">
+      <Dialog open={showUpdateModal} handler={handleCloseUpdateModal} size="md" className="mx-auto ">
         <DialogHeader className="flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-lg">
           <Typography variant="h5" color="white">
             Update Profile
@@ -221,7 +221,7 @@ const OrganizerProfile = () => {
                   `https://ui-avatars.com/api/?name=${encodeURIComponent(dbUser?.name || "User")}&background=0ea5e9&color=fff`
                 }
                 size="xl"
-                className="border-4 border-white shadow-md mb-4 rounded-full"
+                className="border-4 w-20 h-20 border-white shadow-md mb-4 rounded-full"
               />
               <label
                 htmlFor="profile-upload"
