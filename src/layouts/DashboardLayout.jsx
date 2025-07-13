@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 import { Link, Outlet } from "react-router-dom"
 import {
@@ -9,11 +11,11 @@ import {
   Accordion,
   AccordionHeader,
   AccordionBody,
+  Avatar, // Added Avatar for profile image
 } from "@material-tailwind/react"
 import {
   PresentationChartBarIcon,
   ShoppingBagIcon,
-  UserCircleIcon,
   Cog6ToothIcon,
   PowerIcon,
   HomeIcon,
@@ -23,6 +25,7 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   UsersIcon,
+  GlobeAltIcon, // Added GlobeAltIcon for homepage link
 } from "@heroicons/react/24/solid"
 import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline"
 import useAuth from "../hooks/useAuth"
@@ -44,15 +47,24 @@ const DashboardLayout = () => {
   }
 
   const isOrganizer = userRole === "organizer"
-  const isParticipant = userRole === "user" // Assuming 'user' role is participant
+  const isParticipant = userRole === "user"
 
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Card className="h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 sticky top-4 left-4">
-        <div className="mb-2 p-4">
+        <div className="mb-2 p-4 text-center">
           <MedixCampLogo />
-          <Typography variant="h5" color="blue-gray" className="mt-4">
-            {user?.displayName || "Dashboard"}
+          <Avatar
+            src={
+              user?.photoURL ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || "User")}&background=0ea5e9&color=fff`
+            }
+            alt="profile-picture"
+            size="lg"
+            className="rounded-full border-2 border-blue-gray-50 mt-4 mx-auto"
+          />
+          <Typography variant="h5" color="blue-gray" className="mt-2">
+            Welcome, {user?.displayName?.split(" ")[0] || "User"}!
           </Typography>
           <Typography color="gray" className="text-sm">
             Role: {userRole?.charAt(0).toUpperCase() + userRole?.slice(1)}
@@ -66,6 +78,16 @@ const DashboardLayout = () => {
                 <HomeIcon className="h-5 w-5" />
               </ListItemPrefix>
               Dashboard Home
+            </ListItem>
+          </Link>
+
+          {/* Homepage Link */}
+          <Link to="/">
+            <ListItem>
+              <ListItemPrefix>
+                <GlobeAltIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              Homepage
             </ListItem>
           </Link>
 
@@ -130,7 +152,6 @@ const DashboardLayout = () => {
               </Accordion>
             </>
           )}
-
           {/* Participant Specific Links */}
           {isParticipant && (
             <>
@@ -163,6 +184,16 @@ const DashboardLayout = () => {
                         Profile
                       </ListItem>
                     </Link>
+                    <Link to="/available-camps">
+                      {" "}
+                      {/* Changed to /available-camps */}
+                      <ListItem>
+                        <ListItemPrefix>
+                          <CalendarDaysIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Join A Camp
+                      </ListItem>
+                    </Link>
                     <Link to="/dashboard/registered-camps">
                       <ListItem>
                         <ListItemPrefix>
@@ -192,21 +223,18 @@ const DashboardLayout = () => {
               </Accordion>
             </>
           )}
-
           {/* Common Settings and Logout */}
           <hr className="my-2 border-blue-gray-50" />
-          <ListItem>
-            <ListItemPrefix>
-              <UserCircleIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            Profile
-          </ListItem>
-          <ListItem>
-            <ListItemPrefix>
-              <Cog6ToothIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            Settings
-          </ListItem>
+          <Link to="/dashboard/settings">
+            {" "}
+            {/* Assuming a settings page */}
+            <ListItem>
+              <ListItemPrefix>
+                <Cog6ToothIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              Settings
+            </ListItem>
+          </Link>
           <ListItem onClick={logOut}>
             <ListItemPrefix>
               <PowerIcon className="h-5 w-5" />
@@ -222,4 +250,4 @@ const DashboardLayout = () => {
   )
 }
 
-export default DashboardLayout;
+export default DashboardLayout

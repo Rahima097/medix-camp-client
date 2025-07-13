@@ -1,202 +1,222 @@
-import { motion } from "framer-motion"
-import { useQuery } from "@tanstack/react-query"
-import { Card, CardBody, Typography } from "@material-tailwind/react"
-import { FaCalendarAlt, FaUsers, FaDollarSign, FaChartLine } from "react-icons/fa"
-import useAxios from "../../hooks/useAxios"
+import { useState } from "react"
+import { Link, Outlet } from "react-router-dom"
+import {
+  Card,
+  Typography,
+  List,
+  ListItem,
+  ListItemPrefix,
+  Accordion,
+  AccordionHeader,
+  AccordionBody,
+} from "@material-tailwind/react"
+import {
+  PresentationChartBarIcon,
+  ShoppingBagIcon,
+  UserCircleIcon,
+  Cog6ToothIcon,
+  PowerIcon,
+  HomeIcon,
+  CalendarDaysIcon,
+  PlusCircleIcon,
+  ClipboardDocumentListIcon,
+  CurrencyDollarIcon,
+  ChartBarIcon,
+  UsersIcon,
+} from "@heroicons/react/24/solid"
+import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline"
 import useAuth from "../../hooks/useAuth"
+import useUserRole from "../../hooks/useUserRole"
+import MedixCampLogo from "../shared/MedixCampLogo/MedixCampLogo"
 import Loading from "../../components/Loading"
 
-const OrganizerDashboard = () => {
-  const axios = useAxios()
-  const { user } = useAuth()
+const DashboardLayout = () => {
+  const [open, setOpen] = useState(0)
+  const { user, logOut } = useAuth()
+  const { userRole, isLoading } = useUserRole()
 
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ["organizer-stats", user?.email],
-    queryFn: async () => {
-      const [campsRes, registrationsRes] = await Promise.all([axios.get("/camps"), axios.get("/registrations")])
+  const handleOpen = (value) => {
+    setOpen(open === value ? 0 : value)
+  }
 
-      const totalCamps = campsRes.data.length
-      const totalRegistrations = registrationsRes.data.length
-      const totalRevenue = registrationsRes.data
-        .filter((reg) => reg.paymentStatus === "paid")
-        .reduce((sum, reg) => sum + (reg.campFees || 0), 0)
-      const activeCamps = campsRes.data.filter((camp) => new Date(camp.date) >= new Date()).length
+  if (isLoading) {
+    return <Loading message="Loading dashboard..." />
+  }
 
-      return {
-        totalCamps,
-        totalRegistrations,
-        totalRevenue,
-        activeCamps,
-      }
-    },
-  })
-
-  if (isLoading) return <Loading message="Loading dashboard..." />
-
-  const dashboardCards = [
-    {
-      title: "Total Camps",
-      value: stats?.totalCamps || 0,
-      icon: FaCalendarAlt,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      change: "+12%",
-    },
-    {
-      title: "Total Registrations",
-      value: stats?.totalRegistrations || 0,
-      icon: FaUsers,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      change: "+8%",
-    },
-    {
-      title: "Total Revenue",
-      value: `$${stats?.totalRevenue || 0}`,
-      icon: FaDollarSign,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      change: "+15%",
-    },
-    {
-      title: "Active Camps",
-      value: stats?.activeCamps || 0,
-      icon: FaChartLine,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      change: "+5%",
-    },
-  ]
+  const isOrganizer = userRole === "organizer"
+  const isParticipant = userRole === "user"
 
   return (
-    <div className="space-y-8">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <Typography variant="h3" className="font-bold text-gray-800 mb-2">
-          Welcome back, {user?.displayName}!
-        </Typography>
-        <Typography className="text-gray-600">Here's an overview of your medical camp management activities</Typography>
-      </motion.div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {dashboardCards.map((card, index) => (
-          <motion.div
-            key={card.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: index * 0.1 }}
-          >
-            <Card className="hover:shadow-lg transition-shadow duration-300">
-              <CardBody className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-12 h-12 ${card.bgColor} rounded-lg flex items-center justify-center`}>
-                    <card.icon className={`h-6 w-6 ${card.color}`} />
-                  </div>
-                  <Typography variant="small" className="text-green-600 font-semibold">
-                    {card.change}
-                  </Typography>
-                </div>
-                <Typography variant="h4" className="font-bold text-gray-800 mb-1">
-                  {card.value}
-                </Typography>
-                <Typography variant="small" className="text-gray-600">
-                  {card.title}
-                </Typography>
-              </CardBody>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <Card>
-            <CardBody className="p-6">
-              <Typography variant="h5" className="font-bold text-gray-800 mb-6">
-                Quick Actions
-              </Typography>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-                  <div>
-                    <Typography variant="h6" className="font-semibold">
-                      Create New Camp
+    <div className="flex min-h-screen bg-gray-100">
+      <Card className="h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 sticky top-4 left-4">
+        <div className="mb-2 p-4">
+          <MedixCampLogo />
+          <Typography variant="h5" color="blue-gray" className="mt-4">
+            {user?.displayName || "Dashboard"}
+          </Typography>
+          <Typography color="gray" className="text-sm">
+            Role: {userRole?.charAt(0).toUpperCase() + userRole?.slice(1)}
+          </Typography>
+        </div>
+        <List>
+          {/* Common Dashboard Home */}
+          <Link to="/dashboard">
+            <ListItem>
+              <ListItemPrefix>
+                <HomeIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              Dashboard Home
+            </ListItem>
+          </Link>
+          {/* Organizer Specific Links */}
+          {isOrganizer && (
+            <>
+              <Accordion
+                open={open === 1}
+                icon={
+                  <ChevronDownIcon
+                    strokeWidth={2.5}
+                    className={`mx-auto h-4 w-4 transition-transform ${open === 1 ? "rotate-180" : ""}`}
+                  />
+                }
+              >
+                <ListItem className="p-0" selected={open === 1}>
+                  <AccordionHeader onClick={() => handleOpen(1)} className="border-b-0 p-3">
+                    <ListItemPrefix>
+                      <PresentationChartBarIcon className="h-5 w-5" />
+                    </ListItemPrefix>
+                    <Typography color="blue-gray" className="mr-auto font-normal">
+                      Organizer Panel
                     </Typography>
-                    <Typography variant="small" className="text-gray-600">
-                      Add a new medical camp for participants
+                  </AccordionHeader>
+                </ListItem>
+                <AccordionBody className="py-1">
+                  <List className="p-0">
+                    <Link to="/dashboard/organizer-profile">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Profile
+                      </ListItem>
+                    </Link>
+                    <Link to="/dashboard/add-camp">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <PlusCircleIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Add A Camp
+                      </ListItem>
+                    </Link>
+                    <Link to="/dashboard/manage-camps">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <ClipboardDocumentListIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Manage Camps
+                      </ListItem>
+                    </Link>
+                    <Link to="/dashboard/manage-registered-camps">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <UsersIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Manage Registered Camps
+                      </ListItem>
+                    </Link>
+                  </List>
+                </AccordionBody>
+              </Accordion>
+            </>
+          )}
+          {/* Participant Specific Links */}
+          {isParticipant && (
+            <>
+              <Accordion
+                open={open === 2}
+                icon={
+                  <ChevronDownIcon
+                    strokeWidth={2.5}
+                    className={`mx-auto h-4 w-4 transition-transform ${open === 2 ? "rotate-180" : ""}`}
+                  />
+                }
+              >
+                <ListItem className="p-0" selected={open === 2}>
+                  <AccordionHeader onClick={() => handleOpen(2)} className="border-b-0 p-3">
+                    <ListItemPrefix>
+                      <ShoppingBagIcon className="h-5 w-5" />
+                    </ListItemPrefix>
+                    <Typography color="blue-gray" className="mr-auto font-normal">
+                      Participant Panel
                     </Typography>
-                  </div>
-                  <FaCalendarAlt className="h-8 w-8 text-blue-600" />
-                </div>
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                  <div>
-                    <Typography variant="h6" className="font-semibold">
-                      Manage Registrations
-                    </Typography>
-                    <Typography variant="small" className="text-gray-600">
-                      Review and confirm participant registrations
-                    </Typography>
-                  </div>
-                  <FaUsers className="h-8 w-8 text-green-600" />
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <Card>
-            <CardBody className="p-6">
-              <Typography variant="h5" className="font-bold text-gray-800 mb-6">
-                Recent Activity
-              </Typography>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                  <div>
-                    <Typography variant="small" className="font-semibold">
-                      New registration for Heart Health Camp
-                    </Typography>
-                    <Typography variant="small" className="text-gray-600">
-                      2 hours ago
-                    </Typography>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                  <div>
-                    <Typography variant="small" className="font-semibold">
-                      Payment confirmed for Diabetes Screening
-                    </Typography>
-                    <Typography variant="small" className="text-gray-600">
-                      5 hours ago
-                    </Typography>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-                  <div>
-                    <Typography variant="small" className="font-semibold">
-                      New camp created successfully
-                    </Typography>
-                    <Typography variant="small" className="text-gray-600">
-                      1 day ago
-                    </Typography>
-                  </div>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </motion.div>
+                  </AccordionHeader>
+                </ListItem>
+                <AccordionBody className="py-1">
+                  <List className="p-0">
+                    <Link to="/dashboard/participant-profile">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Profile
+                      </ListItem>
+                    </Link>
+                    <Link to="/dashboard/registered-camps">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <CalendarDaysIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Registered Camps
+                      </ListItem>
+                    </Link>
+                    <Link to="/dashboard/payment-history">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <CurrencyDollarIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Payment History
+                      </ListItem>
+                    </Link>
+                    <Link to="/dashboard/analytics">
+                      <ListItem>
+                        <ListItemPrefix>
+                          <ChartBarIcon strokeWidth={3} className="h-3 w-5" />
+                        </ListItemPrefix>
+                        Analytics
+                      </ListItem>
+                    </Link>
+                  </List>
+                </AccordionBody>
+              </Accordion>
+            </>
+          )}
+          {/* Common Settings and Logout */}
+          <hr className="my-2 border-blue-gray-50" />
+          <ListItem>
+            <ListItemPrefix>
+              <UserCircleIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Profile
+          </ListItem>
+          <ListItem>
+            <ListItemPrefix>
+              <Cog6ToothIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Settings
+          </ListItem>
+          <ListItem onClick={logOut}>
+            <ListItemPrefix>
+              <PowerIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Log Out
+          </ListItem>
+        </List>
+      </Card>
+      <div className="flex-1 p-4 overflow-auto">
+        <Outlet />
       </div>
     </div>
   )
 }
 
-export default OrganizerDashboard;
+export default DashboardLayout;
