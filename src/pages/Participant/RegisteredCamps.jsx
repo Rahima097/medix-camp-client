@@ -3,8 +3,13 @@
 import { useState, useMemo } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { motion } from "framer-motion"
-import { Card, Typography, Button, Input, Chip } from "@material-tailwind/react"
-import { FaSearch, FaBan, FaCommentDots, FaDollarSign, FaChevronLeft, FaChevronRight } from "react-icons/fa"
+import { Card, Typography, Button, Input } from "@material-tailwind/react"
+import {
+  FaSearch,
+  FaBan,
+  FaCommentDots,
+  FaDollarSign,
+} from "react-icons/fa"
 import useAxios from "../../hooks/useAxios"
 import useAuth from "../../hooks/useAuth"
 import Loading from "../../components/Loading"
@@ -12,32 +17,22 @@ import { toast } from "react-toastify"
 import Swal from "sweetalert2"
 import FeedbackModal from "./FeedbackModal"
 import { useNavigate } from "react-router-dom"
+import Pagination from "../../components/Pagination" 
 
 const fetchRegisteredCamps = async (axios, email) => {
-  console.log("Fetching registered camps for email:", email) // Debug: Check email being sent
-  if (!email) {
-    console.log("Email is null or undefined, skipping fetch.")
-    return []
-  }
+  if (!email) return []
   try {
     const res = await axios.get(`/registrations?email=${email}`)
-    console.log("API response for registrations:", res.data) // Debug: Log raw API response
     return res.data
   } catch (error) {
-    console.error("Error fetching registered camps from API:", error)
-    throw error // Re-throw to be caught by useQuery's onError
+    console.error("Error fetching registered camps:", error)
+    throw error
   }
 }
 
 const RegisteredCamps = () => {
   const axios = useAxios()
-  const { user, loading: authLoading } = useAuth() // Get the user object and auth loading state
-
-  // Debug: Check the user object and email from useAuth
-  console.log("User object from useAuth in RegisteredCamps:", user)
-  console.log("User email from useAuth in RegisteredCamps:", user?.email)
-  console.log("Auth loading state:", authLoading)
-
+  const { user, loading: authLoading } = useAuth()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
@@ -51,27 +46,21 @@ const RegisteredCamps = () => {
     data: registrations = [],
     isLoading,
     isError,
-    error, // Capture the error object
+    error,
   } = useQuery({
     queryKey: ["participantRegistrations", user?.email],
     queryFn: () => fetchRegisteredCamps(axios, user?.email),
-    enabled: !authLoading && !!user?.email, // Only run query if auth is not loading AND user.email exists
-    onError: (err) => {
-      console.error("useQuery error loading registered camps:", err) // Debug: Log query error
+    enabled: !authLoading && !!user?.email,
+    onError: () => {
       toast.error("Failed to load registered camps.")
     },
   })
-
-  // Debug: Check the data received by the component after query
-  console.log("Registrations data received by component after useQuery:", registrations)
-  console.log("Is loading (useQuery):", isLoading)
-  console.log("Is error (useQuery):", isError, error)
 
   const filteredRegistrations = useMemo(() => {
     return registrations.filter(
       (reg) =>
         (reg.campName || "").toLowerCase().includes(searchText.toLowerCase()) ||
-        (reg.healthcareProfessional || "").toLowerCase().includes(searchText.toLowerCase()),
+        (reg.healthcareProfessional || "").toLowerCase().includes(searchText.toLowerCase())
     )
   }, [registrations, searchText])
 
@@ -79,11 +68,10 @@ const RegisteredCamps = () => {
     mutationFn: (id) => axios.delete(`/registrations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["participantRegistrations", user?.email])
-      queryClient.invalidateQueries(["camps"]) // Invalidate camps to update participant count
+      queryClient.invalidateQueries(["camps"])
       toast.success("Registration cancelled successfully!")
     },
     onError: (error) => {
-      console.error("Error cancelling registration:", error)
       toast.error(error.response?.data?.message || "Failed to cancel registration.")
     },
   })
@@ -91,14 +79,13 @@ const RegisteredCamps = () => {
   const submitFeedbackMutation = useMutation({
     mutationFn: (feedbackData) => axios.post("/feedbacks", feedbackData),
     onSuccess: () => {
-      queryClient.invalidateQueries(["feedbacks"]) // Invalidate home page feedbacks
-      queryClient.invalidateQueries(["participantRegistrations", user?.email]) // To disable feedback button
+      queryClient.invalidateQueries(["feedbacks"])
+      queryClient.invalidateQueries(["participantRegistrations", user?.email])
       toast.success("Feedback submitted successfully!")
       setOpenFeedbackModal(false)
       setSelectedCampForFeedback(null)
     },
     onError: (error) => {
-      console.error("Error submitting feedback:", error)
       toast.error(error.response?.data?.message || "Failed to submit feedback.")
     },
   })
@@ -106,7 +93,7 @@ const RegisteredCamps = () => {
   const handleCancelRegistration = (id) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You are about to cancel this registration. This action cannot be undone.",
+      text: "This will cancel your registration.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -124,8 +111,8 @@ const RegisteredCamps = () => {
     setOpenFeedbackModal(true)
   }
 
-  // Handle loading states
   if (authLoading || isLoading) return <Loading message="Loading registered camps..." />
+
   if (isError)
     return (
       <Typography color="red" className="text-center mt-20">
@@ -137,57 +124,15 @@ const RegisteredCamps = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = filteredRegistrations.slice(indexOfFirstItem, indexOfLastItem)
 
-  const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => {
-    const totalPages = Math.ceil(totalItems / itemsPerPage)
-
-    const getPageNumbers = () => {
-      const pageNumbers = []
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i)
-      }
-      return pageNumbers
-    }
-
-    return (
-      <div className="flex items-center justify-center space-x-2">
-        <button
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <FaChevronLeft />
-        </button>
-
-        {getPageNumbers().map((page) => (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"
-            }`}
-          >
-            {page}
-          </button>
-        ))}
-
-        <button
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <FaChevronRight />
-        </button>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-11/12 mx-auto py-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <Typography variant="h3" className="font-bold text-gray-800 mb-2">
+        <Typography variant="h3" className="text-center font-bold text-gray-800 mb-2">
           Your Registered Camps
         </Typography>
-        <Typography className="text-gray-600">View and manage the medical camps you have registered for.</Typography>
+        <Typography className="text-gray-600 text-center">
+          View and manage the medical camps you have registered for.
+        </Typography>
       </motion.div>
 
       <Card className="shadow-lg p-6">
@@ -206,70 +151,48 @@ const RegisteredCamps = () => {
           <table className="w-full min-w-max table-auto text-left">
             <thead>
               <tr>
-                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                  <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
-                    Camp Name
-                  </Typography>
-                </th>
-                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                  <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
-                    Camp Fees
-                  </Typography>
-                </th>
-                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                  <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
-                    Payment Status
-                  </Typography>
-                </th>
-                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                  <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
-                    Confirmation
-                  </Typography>
-                </th>
-                <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                  <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
-                    Actions
-                  </Typography>
-                </th>
+                <th className="p-4 bg-blue-gray-50">Camp Name</th>
+                <th className="p-4 bg-blue-gray-50">Camp Fees</th>
+                <th className="p-4 bg-blue-gray-50">Payment Status</th>
+                <th className="p-4 bg-blue-gray-50">Confirmation</th>
+                <th className="p-4 bg-blue-gray-50">Actions</th>
               </tr>
             </thead>
             <tbody>
               {currentItems.length > 0 ? (
                 currentItems.map((reg, index) => (
                   <tr key={reg._id} className={index % 2 === 0 ? "bg-white" : "bg-blue-gray-50/50"}>
+                    <td className="p-4">{reg.campName}</td>
+                    <td className="p-4">${reg.campFees}</td>
                     <td className="p-4">
-                      <Typography variant="small" color="blue-gray" className="font-normal">
-                        {reg.campName}
-                      </Typography>
-                    </td>
-                    <td className="p-4">
-                      <Typography variant="small" color="blue-gray" className="font-normal">
-                        ${reg.campFees}
-                      </Typography>
-                    </td>
-                    <td className="p-4">
-                      <Chip
-                        value={reg.paymentStatus}
-                        color={reg.paymentStatus === "paid" ? "green" : "red"}
-                        className="capitalize"
-                      />
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          reg.paymentStatus === "paid"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {reg.paymentStatus || "unpaid"}
+                      </span>
                       {reg.paymentStatus === "unpaid" && (
-                        <Button
-                          size="sm"
-                          color="blue"
-                          className="mt-2"
+                        <button
                           onClick={() => navigate(`/dashboard/payment/${reg._id}`)}
+                          className="mt-2 inline-flex items-center gap-1 text-sm px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
                         >
-                          <FaDollarSign className="inline-block mr-1" /> Pay
-                        </Button>
+                          <FaDollarSign className="inline-block" /> Pay
+                        </button>
                       )}
                     </td>
                     <td className="p-4">
-                      <Chip
-                        value={reg.confirmationStatus}
-                        color={reg.confirmationStatus === "confirmed" ? "green" : "blue-gray"}
-                        className="capitalize"
-                      />
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          reg.confirmationStatus === "confirmed"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {reg.confirmationStatus || "pending"}
+                      </span>
                     </td>
                     <td className="p-4 flex gap-2">
                       <Button
@@ -287,7 +210,7 @@ const RegisteredCamps = () => {
                         variant="outlined"
                         color="green"
                         onClick={() => handleOpenFeedbackModal(reg)}
-                        disabled={reg.paymentStatus !== "paid" || reg.hasFeedback} // Disable if not paid or already given feedback
+                        disabled={reg.paymentStatus !== "paid" || reg.hasFeedback}
                         className="flex items-center gap-2"
                       >
                         <FaCommentDots className="h-4 w-4" /> Feedback
@@ -307,7 +230,9 @@ const RegisteredCamps = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex justify-center mt-8">
+
+        {/* ✅ Reused shared Pagination */}
+        <div className="mt-6 flex justify-center">
           <Pagination
             totalItems={filteredRegistrations.length}
             itemsPerPage={itemsPerPage}
@@ -330,4 +255,4 @@ const RegisteredCamps = () => {
   )
 }
 
-export default RegisteredCamps
+export default RegisteredCamps;

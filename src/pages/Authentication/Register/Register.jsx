@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import {
@@ -38,6 +38,8 @@ const Register = () => {
   const { createUser, googleSignIn, updateUserProfile } = useAuth();
   const axiosInstance = useAxios();
   const navigate = useNavigate();
+  const location = useLocation(); // 🟢 added
+  const from = location.state?.from?.pathname || "/"; // 🟢 added
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleImageUpload = async (e) => {
@@ -94,7 +96,7 @@ const Register = () => {
 
       await axiosInstance.post("/users", userInfo);
 
-      navigate("/user-dashboard");
+      navigate(from, { replace: true });
     } catch (e) {
       console.error("Registration Error:", e);
       toast.error("Registration failed. Please try again.");
@@ -135,7 +137,7 @@ const Register = () => {
         await axiosInstance.post("/users", userInfo);
       }
       toast.success("Google Register is successfully!")
-      navigate("/user-dashboard");
+      navigate(from, { replace: true });
     } catch (error) {
       console.error("Google Sign-in Error:", error);
       toast.error("Google Sign-in failed.");
@@ -310,7 +312,7 @@ const Register = () => {
             <CardFooter className="pt-0 pb-6">
               <Typography variant="small" className="text-center text-gray-600">
                 Already have an account?
-                <Link to="/join-us" className="ml-2 font-bold text-blue-600 hover:text-blue-800">
+                <Link to="/join-us" state={{ from: location.state?.from || location }} className="ml-2 font-bold text-blue-600 hover:text-blue-800">
                   Sign In
                 </Link>
               </Typography>

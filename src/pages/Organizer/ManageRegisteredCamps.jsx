@@ -76,7 +76,7 @@ const ManageRegisteredCamps = () => {
     mutationFn: (id) => axios.delete(`/registrations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(["allRegistrations"])
-      queryClient.invalidateQueries(["camps"]) 
+      queryClient.invalidateQueries(["camps"])
       toast.success("Registration cancelled successfully!")
     },
     onError: (error) => {
@@ -145,9 +145,8 @@ const ManageRegisteredCamps = () => {
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === page ? "bg-blue-500 text-white" : "bg-gray-100 hover:bg-gray-200"
-            }`}
+            className={`px-3 py-1 rounded-md ${currentPage === page ? "bg-blue-500 text-white" : "bg-gray-100 hover:bg-gray-200"
+              }`}
           >
             {page}
           </button>
@@ -165,23 +164,23 @@ const ManageRegisteredCamps = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-11/12 mx-auto my-5">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <Typography variant="h3" className="font-bold text-gray-800 mb-2">
+        <Typography variant="h3" className="font-bold text-gray-800 mb-2 text-center">
           Manage Registered Camps
         </Typography>
-        <Typography className="text-gray-600">Oversee all participant registrations for medical camps.</Typography>
+        <Typography className="text-gray-600 text-center">Oversee all participant registrations for medical camps.</Typography>
       </motion.div>
 
       <Card className="shadow-lg p-6">
         <div className="mb-6 flex items-center bg-white rounded-full shadow-md px-4 py-2 w-full md:w-1/2">
-          <FaSearch className="text-blue-600 mr-2" />
+          <FaSearch className="text-blue-600 mt-2 mr-2" />
           <Input
             variant="static"
             placeholder="Search registrations..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            className="border-none focus:ring-0"
+            className="border-none pb-2 ps-4 rounded-full focus:ring-0"
           />
         </div>
 
@@ -241,11 +240,14 @@ const ManageRegisteredCamps = () => {
                       </Typography>
                     </td>
                     <td className="p-4">
-                      <Chip
-                        value={reg.paymentStatus}
-                        color={reg.paymentStatus === "paid" ? "green" : "red"}
-                        className="capitalize"
-                      />
+                      <span
+                        className={`inline-block px-3 py-1 text-xs font-semibold rounded-full capitalize 
+      ${reg.paymentStatus === "paid"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"}`}
+                      >
+                        {reg.paymentStatus}
+                      </span>
                     </td>
                     <td className="p-4">
                       <Button
@@ -254,7 +256,7 @@ const ManageRegisteredCamps = () => {
                         color={reg.confirmationStatus === "confirmed" ? "green" : "blue-gray"}
                         onClick={() => handleConfirmStatus(reg)}
                         disabled={reg.confirmationStatus === "confirmed" || updateConfirmationStatusMutation.isLoading}
-                        className="capitalize"
+                        className="capitalize text-blue-600 border border-blue-600"
                       >
                         {updateConfirmationStatusMutation.isLoading && selectedRegistration?._id === reg._id ? (
                           <Spinner size="sm" />

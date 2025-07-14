@@ -11,7 +11,7 @@ const DashboardHome = () => {
     if (!isLoading) {
       if (userRole === "organizer") {
         navigate("/dashboard/organizer-dashboard", { replace: true })
-      } else if (userRole === "user") {
+      } else if (userRole === "participant") {
         navigate("/dashboard/participant-dashboard", { replace: true })
       } else {
         // Fallback for unassigned roles or if role determination fails

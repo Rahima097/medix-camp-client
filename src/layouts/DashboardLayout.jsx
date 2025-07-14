@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Link, Outlet } from "react-router-dom"
 import {
@@ -8,246 +6,204 @@ import {
   List,
   ListItem,
   ListItemPrefix,
-  Accordion,
-  AccordionHeader,
-  AccordionBody,
-  Avatar, // Added Avatar for profile image
+  Avatar,
+  IconButton,
+  Drawer
 } from "@material-tailwind/react"
 import {
-  PresentationChartBarIcon,
-  ShoppingBagIcon,
-  Cog6ToothIcon,
-  PowerIcon,
   HomeIcon,
+  PowerIcon,
+  GlobeAltIcon,
   CalendarDaysIcon,
   PlusCircleIcon,
   ClipboardDocumentListIcon,
   CurrencyDollarIcon,
   ChartBarIcon,
   UsersIcon,
-  GlobeAltIcon, // Added GlobeAltIcon for homepage link
+  Bars3Icon,
+  XMarkIcon
 } from "@heroicons/react/24/solid"
-import { ChevronRightIcon, ChevronDownIcon } from "@heroicons/react/24/outline"
 import useAuth from "../hooks/useAuth"
 import useUserRole from "../hooks/useUserRole"
 import MedixCampLogo from "../pages/shared/MedixCampLogo/MedixCampLogo"
 import Loading from "../components/Loading"
 
 const DashboardLayout = () => {
-  const [open, setOpen] = useState(0)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const { user, logOut } = useAuth()
   const { userRole, isLoading } = useUserRole()
 
-  const handleOpen = (value) => {
-    setOpen(open === value ? 0 : value)
-  }
+  const isOrganizer = userRole === "organizer"
+  const isParticipant = userRole === "participant"
+
+  const toggleMobile = () => setMobileOpen(!mobileOpen)
 
   if (isLoading) {
     return <Loading message="Loading dashboard..." />
   }
 
-  const isOrganizer = userRole === "organizer"
-  const isParticipant = userRole === "user"
+  const SidebarContent = () => (
+    <div className="p-4">
+      <div className="text-center mb-4">
+        <MedixCampLogo />
+        <Avatar
+          src={
+            user?.photoURL ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || "User")}&background=0ea5e9&color=fff`
+          }
+          alt="profile"
+          size="lg"
+          className="h-20 w-20 mx-auto border-2 border-blue-gray-100 my-4"
+        />
+        <Typography variant="h6">{user?.displayName?.split(" ")[0] || "User"}</Typography>
+        <Typography variant="small" color="gray">
+          Role: {userRole?.charAt(0).toUpperCase() + userRole?.slice(1)}
+        </Typography>
+      </div>
+      <List>
+        {/* Common Links */}
+        <Link to="/dashboard">
+          <ListItem>
+            <ListItemPrefix>
+              <HomeIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Dashboard Home
+          </ListItem>
+        </Link>
+        <Link to="/">
+          <ListItem>
+            <ListItemPrefix>
+              <GlobeAltIcon className="h-5 w-5" />
+            </ListItemPrefix>
+            Homepage
+          </ListItem>
+        </Link>
+
+        {/* Organizer Links */}
+        {isOrganizer && (
+          <>
+            <Link to="/dashboard/organizer-profile">
+              <ListItem>
+                <ListItemPrefix>
+                  <UsersIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Profile
+              </ListItem>
+            </Link>
+            <Link to="/dashboard/add-camp">
+              <ListItem>
+                <ListItemPrefix>
+                  <PlusCircleIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Add A Camp
+              </ListItem>
+            </Link>
+            <Link to="/dashboard/manage-camps">
+              <ListItem>
+                <ListItemPrefix>
+                  <ClipboardDocumentListIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Manage Camps
+              </ListItem>
+            </Link>
+            <Link to="/dashboard/manage-registered-camps">
+              <ListItem>
+                <ListItemPrefix>
+                  <UsersIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Manage Registered Camps
+              </ListItem>
+            </Link>
+          </>
+        )}
+
+        {/* Participant Links */}
+        {isParticipant && (
+          <>
+            <Link to="/dashboard/participant-profile">
+              <ListItem>
+                <ListItemPrefix>
+                  <UsersIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Profile
+              </ListItem>
+            </Link>
+            <Link to="/available-camps">
+              <ListItem>
+                <ListItemPrefix>
+                  <CalendarDaysIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Join A Camp
+              </ListItem>
+            </Link>
+            <Link to="/dashboard/registered-camps">
+              <ListItem>
+                <ListItemPrefix>
+                  <CalendarDaysIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Registered Camps
+              </ListItem>
+            </Link>
+            <Link to="/dashboard/payment-history">
+              <ListItem>
+                <ListItemPrefix>
+                  <CurrencyDollarIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Payment History
+              </ListItem>
+            </Link>
+            <Link to="/dashboard/analytics">
+              <ListItem>
+                <ListItemPrefix>
+                  <ChartBarIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Analytics
+              </ListItem>
+            </Link>
+          </>
+        )}
+
+        {/* Logout */}
+        <ListItem onClick={logOut}>
+          <ListItemPrefix>
+            <PowerIcon className="h-5 w-5" />
+          </ListItemPrefix>
+          Log Out
+        </ListItem>
+      </List>
+    </div>
+  )
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Card className="h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 sticky top-4 left-4">
-        <div className="mb-2 p-4 text-center">
-          <MedixCampLogo />
-          <Avatar
-            src={
-              user?.photoURL ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || "User")}&background=0ea5e9&color=fff`
-            }
-            alt="profile-picture"
-            size="lg"
-            className="rounded-full h-20 w-20 border-2 border-blue-gray-50 mt-4 mx-auto"
-          />
-          <Typography variant="h5" color="blue-gray" className="mt-2">
-            Welcome, {user?.displayName?.split(" ")[0] || "User"}!
-          </Typography>
-          <Typography color="gray" className="text-sm">
-            Role: {userRole?.charAt(0).toUpperCase() + userRole?.slice(1)}
-          </Typography>
-        </div>
-        <List>
-          {/* Common Dashboard Home */}
-          <Link to="/dashboard">
-            <ListItem>
-              <ListItemPrefix>
-                <HomeIcon className="h-5 w-5" />
-              </ListItemPrefix>
-              Dashboard Home
-            </ListItem>
-          </Link>
-
-          {/* Homepage Link */}
-          <Link to="/">
-            <ListItem>
-              <ListItemPrefix>
-                <GlobeAltIcon className="h-5 w-5" />
-              </ListItemPrefix>
-              Homepage
-            </ListItem>
-          </Link>
-
-          {/* Organizer Specific Links */}
-          {isOrganizer && (
-            <>
-              <Accordion
-                open={open === 1}
-                icon={
-                  <ChevronDownIcon
-                    strokeWidth={2.5}
-                    className={`mx-auto h-4 w-4 transition-transform ${open === 1 ? "rotate-180" : ""}`}
-                  />
-                }
-              >
-                <ListItem className="p-0" selected={open === 1}>
-                  <AccordionHeader onClick={() => handleOpen(1)} className="border-b-0 p-3">
-                    <ListItemPrefix>
-                      <PresentationChartBarIcon className="h-5 w-5" />
-                    </ListItemPrefix>
-                    <Typography color="blue-gray" className="mr-auto font-normal">
-                      Organizer Panel
-                    </Typography>
-                  </AccordionHeader>
-                </ListItem>
-                <AccordionBody className="py-1">
-                  <List className="p-0">
-                    <Link to="/dashboard/organizer-profile">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Profile
-                      </ListItem>
-                    </Link>
-                    <Link to="/dashboard/add-camp">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <PlusCircleIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Add A Camp
-                      </ListItem>
-                    </Link>
-                    <Link to="/dashboard/manage-camps">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <ClipboardDocumentListIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Manage Camps
-                      </ListItem>
-                    </Link>
-                    <Link to="/dashboard/manage-registered-camps">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <UsersIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Manage Registered Camps
-                      </ListItem>
-                    </Link>
-                  </List>
-                </AccordionBody>
-              </Accordion>
-            </>
-          )}
-          {/* Participant Specific Links */}
-          {isParticipant && (
-            <>
-              <Accordion
-                open={open === 2}
-                icon={
-                  <ChevronDownIcon
-                    strokeWidth={2.5}
-                    className={`mx-auto h-4 w-4 transition-transform ${open === 2 ? "rotate-180" : ""}`}
-                  />
-                }
-              >
-                <ListItem className="p-0" selected={open === 2}>
-                  <AccordionHeader onClick={() => handleOpen(2)} className="border-b-0 p-3">
-                    <ListItemPrefix>
-                      <ShoppingBagIcon className="h-5 w-5" />
-                    </ListItemPrefix>
-                    <Typography color="blue-gray" className="mr-auto font-normal">
-                      Participant Panel
-                    </Typography>
-                  </AccordionHeader>
-                </ListItem>
-                <AccordionBody className="py-1">
-                  <List className="p-0">
-                    <Link to="/dashboard/participant-profile">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <ChevronRightIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Profile
-                      </ListItem>
-                    </Link>
-                    <Link to="/available-camps">
-                      {" "}
-                      {/* Changed to /available-camps */}
-                      <ListItem>
-                        <ListItemPrefix>
-                          <CalendarDaysIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Join A Camp
-                      </ListItem>
-                    </Link>
-                    <Link to="/dashboard/registered-camps">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <CalendarDaysIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Registered Camps
-                      </ListItem>
-                    </Link>
-                    <Link to="/dashboard/payment-history">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <CurrencyDollarIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Payment History
-                      </ListItem>
-                    </Link>
-                    <Link to="/dashboard/analytics">
-                      <ListItem>
-                        <ListItemPrefix>
-                          <ChartBarIcon strokeWidth={3} className="h-3 w-5" />
-                        </ListItemPrefix>
-                        Analytics
-                      </ListItem>
-                    </Link>
-                  </List>
-                </AccordionBody>
-              </Accordion>
-            </>
-          )}
-          {/* Common Settings and Logout */}
-          <hr className="my-2 border-blue-gray-50" />
-          <Link to="/dashboard/settings">
-            {" "}
-            {/* Assuming a settings page */}
-            <ListItem>
-              <ListItemPrefix>
-                <Cog6ToothIcon className="h-5 w-5" />
-              </ListItemPrefix>
-              Settings
-            </ListItem>
-          </Link>
-          <ListItem onClick={logOut}>
-            <ListItemPrefix>
-              <PowerIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            Log Out
-          </ListItem>
-        </List>
-      </Card>
-      <div className="flex-1 p-4 overflow-auto">
-        <Outlet />
+    <div className="flex min-h-screen">
+      {/* Mobile Sidebar */}
+      <div className="md:hidden fixed top-2 left-2 z-50">
+        <IconButton variant="text" onClick={toggleMobile}>
+          <Bars3Icon className="h-6 w-6" />
+        </IconButton>
       </div>
+
+      <Drawer open={mobileOpen} onClose={toggleMobile} className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <MedixCampLogo />
+          <IconButton variant="text" onClick={toggleMobile}>
+            <XMarkIcon className="h-6 w-6" />
+          </IconButton>
+        </div>
+        <SidebarContent />
+      </Drawer>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-72 bg-white shadow-lg border-r sticky top-0 h-screen">
+        <SidebarContent />
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 bg-gray-100 p-4 overflow-y-auto">
+        <Outlet />
+      </main>
     </div>
   )
 }
 
-export default DashboardLayout
+export default DashboardLayout;

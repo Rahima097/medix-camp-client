@@ -236,8 +236,8 @@ const JoinUs = () => {
             <CardFooter className="pt-0 pb-6">
               <Typography variant="small" className="mt-6 flex justify-center text-gray-600">
                 Don't have an account?
-                <Link to="/register" className="ml-2  font-bold text-blue-600 hover:text-blue-800 transition-colors">
-                  Create Account
+                <Link to="/register" state={{ from: location.state?.from || location }} className="ml-2 font-bold text-blue-600 hover:text-blue-800">
+                  Register
                 </Link>
               </Typography>
             </CardFooter>

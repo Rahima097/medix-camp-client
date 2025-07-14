@@ -15,14 +15,12 @@ const ParticipantRoute = ({ children }) => {
     return <Navigate to="/join-us" replace />
   }
 
-  // A participant can be a 'user' or an 'organizer' who also participates
-  // For this project, 'user' is the primary participant role.
-  // If an organizer registers for a camp, they are also a participant.
-  if (userRole !== "user" && userRole !== "organizer") {
+  const allowedRoles = ["participant", "organizer"]
+  if (!allowedRoles.includes(userRole)) {
     return <Navigate to="/forbidden" replace />
   }
 
   return children
 }
 
-export default ParticipantRoute
+export default ParticipantRoute;

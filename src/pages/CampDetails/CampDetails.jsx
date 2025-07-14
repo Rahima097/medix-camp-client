@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import useAxios from "../../hooks/useAxios"
 import { Card, CardBody, Typography, Button, Chip } from "@material-tailwind/react"
@@ -18,6 +18,8 @@ const CampDetails = () => {
   const queryClient = useQueryClient()
   const [showModal, setShowModal] = useState(false)
   const { user } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const {
     data: camp,
@@ -36,8 +38,8 @@ const CampDetails = () => {
     mutationFn: (info) => axios.post("/registrations", info),
     onSuccess: () => {
       toast.success("Successfully joined the camp!")
-      queryClient.invalidateQueries(["camp", campId]) // Invalidate to refetch updated participant count
-      queryClient.invalidateQueries(["registrations", user?.email]) // Invalidate participant's registrations
+      queryClient.invalidateQueries(["camp", campId])
+      queryClient.invalidateQueries(["registrations", user?.email])
       setShowModal(false)
     },
     onError: (error) => {
@@ -56,7 +58,6 @@ const CampDetails = () => {
     )
   }
 
-  // Format date nicely
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
@@ -144,7 +145,14 @@ const CampDetails = () => {
                 variant="gradient"
                 fullWidth
                 className="md:w-auto px-10 py-3 text-base bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-                onClick={() => setShowModal(true)} 
+                onClick={() => {
+                  if (!user) {
+                    toast.info("Please log in to join this camp.")
+                    navigate("/join-us", { state: { from: location } })
+                    return
+                  }
+                  setShowModal(true)
+                }}
                 disabled={camp.capacity <= (camp.participant_count || 0) || joinMutation.isLoading}
                 ripple={true}
               >
@@ -180,7 +188,8 @@ const CampDetails = () => {
           </CardBody>
         </Card>
       </div>
-      {showModal && ( 
+
+      {showModal && (
         <JoinCampModal
           camp={camp}
           isSubmitting={joinMutation.isLoading}
@@ -193,4 +202,4 @@ const CampDetails = () => {
   )
 }
 
-export default CampDetails
+export default CampDetails;

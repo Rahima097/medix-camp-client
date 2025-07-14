@@ -6,7 +6,7 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
 
   const getItemProps = (index) => ({
     variant: currentPage === index ? "filled" : "text",
-    color: "blue-gray",
+    color: currentPage === index ? "blue" : "blue-gray",
     onClick: () => onPageChange(index),
     className: "rounded-full",
   })

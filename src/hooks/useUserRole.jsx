@@ -9,8 +9,8 @@ const useUserRole = () => {
   const { data: userRole, isLoading } = useQuery({
     queryKey: ["userRole", user?.email],
     queryFn: async () => {
-      if (!user?.email) return null
-      const res = await axios.get(`/users?email=${user.email}`)
+      if (!user?.email) return "user"
+      const res = await axios.get(`/users/role/${user.email}`)
       return res.data?.role || "user"
     },
     enabled: !!user?.email,
