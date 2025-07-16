@@ -194,12 +194,12 @@ const ManageCamps = () => {
     )
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-11/12 mx-auto my-5">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <Typography variant="h3" className="font-bold text-gray-800 mb-2">
+        <Typography variant="h3" className="font-bold text-gray-800 mb-2 text-center">
           Manage Your Camps
         </Typography>
-        <Typography className="text-gray-600">Edit or delete medical camps you have created.</Typography>
+        <Typography className="text-gray-600 text-center">Edit or delete medical camps you have created.</Typography>
       </motion.div>
 
       <Card className="shadow-lg p-6">
@@ -342,7 +342,10 @@ const ManageCamps = () => {
             </IconButton>
           </DialogHeader>
           <form onSubmit={handleSubmit(onEditSubmit)}>
-            <DialogBody divider className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 py-6">
+            <DialogBody
+              divider
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 py-6 max-h-[70vh] overflow-y-auto"
+            >
               <Input
                 label="Camp Name"
                 type="text"

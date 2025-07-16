@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -82,18 +80,12 @@ const CheckoutForm = ({ registration, onPaymentSuccess }) => {
           transactionId: paymentIntent.id,
           paymentDate: new Date().toISOString(),
           amount: registration.campFees,
-          campName: registration.campName,
-          participantEmail: registration.participantEmail,
-          confirmationStatus: registration.confirmationStatus || "pending",
-
-          // ✅ These are important for backend tracking
-          campId: registration.campId,
-          registrationId: registration._id,
         }
 
-        console.log("Submitting paymentInfo to backend:", paymentInfo)
-
-        await updateRegistrationPaymentStatusMutation.mutateAsync({ id: registration._id, paymentInfo })
+        await updateRegistrationPaymentStatusMutation.mutateAsync({
+          id: registration._id,
+          paymentInfo,
+        })
       }
     } catch (error) {
       console.error("Payment process error:", error)
@@ -168,7 +160,7 @@ const PaymentPage = () => {
   })
 
   const handlePaymentSuccess = () => {
-    queryClient.invalidateQueries(["userRole", registration.participantEmail]) // ✅ refetch updated role
+    queryClient.invalidateQueries(["userRole", registration.participantEmail])
     queryClient.invalidateQueries(["singleRegistration", registrationId])
     queryClient.invalidateQueries(["participantRegistrations"])
     queryClient.invalidateQueries(["paymentHistory"])
@@ -192,11 +184,17 @@ const PaymentPage = () => {
             <Typography variant="h4" color="green" className="mb-2">
               Payment Already Made!
             </Typography>
-            <Typography className="text-gray-700 mb-4">This registration has already been paid for.</Typography>
+            <Typography className="text-gray-700 mb-4">
+              This registration has already been paid for.
+            </Typography>
             <Typography variant="small" className="text-gray-600">
               Transaction ID: {registration.transactionId || "N/A"}
             </Typography>
-            <Button color="blue" className="mt-6" onClick={() => navigate("/dashboard/registered-camps")}>
+            <Button
+              color="blue"
+              className="mt-6"
+              onClick={() => navigate("/dashboard/registered-camps")}
+            >
               Back to Registered Camps
             </Button>
           </CardBody>
@@ -213,10 +211,12 @@ const PaymentPage = () => {
             Complete Your Payment
           </Typography>
           <Typography className="mb-4 text-gray-700">
-            You are about to pay for: <span className="font-semibold">{registration.campName}</span>
+            You are about to pay for:{" "}
+            <span className="font-semibold">{registration.campName}</span>
           </Typography>
           <Typography className="mb-6 text-gray-700">
-            Amount Due: <span className="font-bold text-blue-600 text-xl">${registration.campFees}</span>
+            Amount Due:{" "}
+            <span className="font-bold text-blue-600 text-xl">${registration.campFees}</span>
           </Typography>
 
           <Elements stripe={stripePromise}>
@@ -228,4 +228,4 @@ const PaymentPage = () => {
   )
 }
 
-export default PaymentPage;
+export default PaymentPage

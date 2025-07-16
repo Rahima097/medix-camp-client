@@ -1,8 +1,21 @@
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useQuery } from "@tanstack/react-query"
-import { Card, CardBody, CardFooter, Typography, Button, Chip } from "@material-tailwind/react"
-import { FaCalendarAlt, FaMapMarkerAlt, FaUserMd, FaUsers, FaDollarSign } from "react-icons/fa"
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  Typography,
+  Button,
+  Chip,
+} from "@material-tailwind/react"
+import {
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaUserMd,
+  FaUsers,
+  FaDollarSign,
+} from "react-icons/fa"
 import useAxios from "../../../hooks/useAxios"
 import Loading from "../../../components/Loading"
 
@@ -15,7 +28,9 @@ const PopularCamps = () => {
     queryFn: async () => {
       const res = await axios.get("/camps")
       // Sort by participant count and get top 6
-      return res.data.sort((a, b) => (b.participant_count || 0) - (a.participant_count || 0)).slice(0, 6)
+      return res.data
+        .sort((a, b) => (b.participant_count || 0) - (a.participant_count || 0))
+        .slice(0, 6)
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
@@ -56,11 +71,10 @@ const PopularCamps = () => {
                       className="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                     <div className="absolute top-4 right-4">
-                      <Chip
-                        value={`${camp.participant_count || 0} joined`}
-                        className="bg-blue-600 text-white"
-                        icon={<FaUsers className="h-4 w-4" />}
-                      />
+                      <span className="inline-flex items-center bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <FaUsers className="h-4 w-4 mr-2" />
+                        {`${camp.participant_count || 0} joined`}
+                      </span>
                     </div>
                   </div>
 
@@ -71,32 +85,34 @@ const PopularCamps = () => {
 
                     <div className="space-y-2 text-sm text-gray-600 mb-4">
                       <div className="flex items-center gap-2">
-                        <FaDollarSign className="text-green-600" />
+                        <FaDollarSign className="text-blue-600" />
                         <span className="font-semibold">${camp.fees}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <FaCalendarAlt className="text-blue-600" />
+                        <FaCalendarAlt className="text-blue-500" />
                         <span>
                           {camp.date} at {camp.time}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <FaMapMarkerAlt className="text-red-600" />
+                        <FaMapMarkerAlt className="text-blue-500" />
                         <span>{camp.venue}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <FaUserMd className="text-purple-600" />
+                        <FaUserMd className="text-blue-500" />
                         <span>{camp.healthcare_professional}</span>
                       </div>
                     </div>
 
-                    <Typography className="text-gray-600 text-sm line-clamp-3">{camp.description}</Typography>
+                    <Typography className="text-gray-600 text-sm line-clamp-3">
+                      {camp.description}
+                    </Typography>
                   </CardBody>
 
                   <CardFooter className="pt-0">
                     <Button
                       fullWidth
-                      className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                      className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg"
                       onClick={() => navigate(`/camp-details/${camp._id}`)}
                     >
                       View Details
@@ -121,7 +137,7 @@ const PopularCamps = () => {
           <Link to="/available-camps">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-8"
+              className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 ease-in-out px-8 py-3 shadow-md hover:shadow-lg"
             >
               See All Camps
             </Button>
@@ -132,4 +148,4 @@ const PopularCamps = () => {
   )
 }
 
-export default PopularCamps;
+export default PopularCamps

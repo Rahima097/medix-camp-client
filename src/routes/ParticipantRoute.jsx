@@ -1,26 +1,26 @@
-import { Navigate } from "react-router-dom"
-import useAuth from "../hooks/useAuth"
-import useUserRole from "../hooks/useUserRole"
-import Loading from "../components/Loading"
+import { Navigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import useUserRole from "../hooks/useUserRole";
+import Loading from "../components/Loading";
 
 const ParticipantRoute = ({ children }) => {
-  const { user, loading: authLoading } = useAuth()
-  const { userRole, isLoading: roleLoading } = useUserRole()
+  const { user, loading: authLoading } = useAuth();
+  const { userRole, isLoading: roleLoading } = useUserRole();
 
-  if (authLoading || roleLoading) {
-    return <Loading message="Verifying permissions..." />
+  if (authLoading || roleLoading || userRole === undefined) {
+    return <Loading message="Verifying permissions..." />;
   }
 
   if (!user) {
-    return <Navigate to="/join-us" replace />
+    return <Navigate to="/join-us" replace />;
   }
 
-  const allowedRoles = ["participant", "organizer"]
+  const allowedRoles = ["user", "participant"];
   if (!allowedRoles.includes(userRole)) {
-    return <Navigate to="/forbidden" replace />
+    return <Navigate to="/forbidden" replace />;
   }
 
-  return children
-}
+  return children;
+};
 
 export default ParticipantRoute;

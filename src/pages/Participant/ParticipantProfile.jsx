@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import {
@@ -17,7 +15,7 @@ import {
   DialogFooter,
 } from "@material-tailwind/react"
 import { FaUser, FaUpload, FaEdit } from "react-icons/fa"
-import { PhoneIcon, EnvelopeIcon as HeroIconEnvelope } from "@heroicons/react/24/solid" // Renamed to avoid conflict
+import { PhoneIcon, EnvelopeIcon as HeroIconEnvelope } from "@heroicons/react/24/solid"
 import useAuth from "../../hooks/useAuth"
 import useAxios from "../../hooks/useAxios"
 import { toast } from "react-toastify"
@@ -35,9 +33,8 @@ const ParticipantProfile = () => {
   const axios = useAxios()
   const queryClient = useQueryClient()
 
-  const [open, setOpen] = useState(false) // State for dialog
+  const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState({
-    // State for form data, like OrganizerProfile
     name: "",
     email: "",
     phone: "",
@@ -54,7 +51,7 @@ const ParticipantProfile = () => {
     queryKey: ["userProfile", user?.email],
     queryFn: () => fetchUserProfile(axios, user?.email),
     enabled: !authLoading && !!user?.email,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
     onSuccess: (data) => {
       if (data) {
         setFormData({
@@ -72,7 +69,6 @@ const ParticipantProfile = () => {
   })
 
   useEffect(() => {
-    // This effect ensures formData is updated if dbUser changes after initial load
     if (dbUser) {
       setFormData((prev) => ({
         ...prev,
@@ -97,7 +93,7 @@ const ParticipantProfile = () => {
     setSelectedFile(file)
 
     setImageUploading(true)
-    const uploadFormData = new FormData() // Use a different name to avoid conflict with component's formData
+    const uploadFormData = new FormData()
     uploadFormData.append("file", file)
     uploadFormData.append("upload_preset", "medix_unsigned")
     uploadFormData.append("folder", "medix/profiles")
@@ -108,7 +104,7 @@ const ParticipantProfile = () => {
         {
           method: "POST",
           body: uploadFormData,
-        },
+        }
       )
       const data = await res.json()
       if (data.secure_url) {
@@ -127,16 +123,14 @@ const ParticipantProfile = () => {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (updatedData) => {
-      // Update Firebase profile
       await updateFirebaseProfile(updatedData.name, updatedData.photo)
-      // Update MongoDB user profile using email as identifier
       const res = await axios.patch(`/users/${user.email}`, updatedData)
       return res.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["userProfile", user?.email])
       toast.success("Profile updated successfully!")
-      setOpen(false) // Close dialog on success
+      setOpen(false)
     },
     onError: (error) => {
       console.error("Error updating profile:", error)
@@ -145,7 +139,7 @@ const ParticipantProfile = () => {
   })
 
   const handleSubmit = () => {
-    updateProfileMutation.mutate(formData) // Use formData state for mutation
+    updateProfileMutation.mutate(formData)
   }
 
   if (authLoading || isDbUserLoading) return <Loading message="Loading profile..." />
@@ -237,8 +231,7 @@ const ParticipantProfile = () => {
         </motion.div>
       </div>
 
-      {/* Dialog for updating profile, similar to OrganizerProfile */}
-      <Dialog open={open} handler={handleOpen} size="md">
+      <Dialog open={open} handler={handleOpen} size="lg" className="">
         <DialogHeader className="bg-blue-700 text-white">Update Profile</DialogHeader>
         <DialogBody divider>
           <div className="flex flex-col items-center mb-6">
@@ -267,17 +260,16 @@ const ParticipantProfile = () => {
               className="hidden"
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth />
+          <div className="grid grid-cols-1 md:grid-cols-2 py-3 gap-6">
+            <Input label="Name" name="name" value={formData.name} onChange={handleChange} />
             <Input
               label="Phone Number"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               placeholder="Enter phone number"
-              fullWidth
             />
-            <Input label="Email" name="email" value={formData.email} disabled fullWidth />
+            <Input label="Email" name="email" value={formData.email} disabled />
           </div>
         </DialogBody>
         <DialogFooter>
@@ -287,6 +279,7 @@ const ParticipantProfile = () => {
           <Button
             variant="gradient"
             color="blue"
+            className="bg-blue-600"
             onClick={handleSubmit}
             disabled={updateProfileMutation.isLoading || imageUploading}
           >
@@ -298,4 +291,4 @@ const ParticipantProfile = () => {
   )
 }
 
-export default ParticipantProfile;
+export default ParticipantProfile

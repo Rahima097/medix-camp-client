@@ -1,26 +1,20 @@
-import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import useUserRole from "../../hooks//useUserRole"
-import Loading from "../../components/Loading"
+import useUserRole from "../../hooks/useUserRole";
+import OrganizerDashboard from "../Organizer/OrganizerDashboard";
+import ParticipantDashboard from "../Participant/ParticipantDashboard";
+import Loading from "../../components/Loading";
+import { Navigate } from "react-router-dom";
 
 const DashboardHome = () => {
-  const { userRole, isLoading } = useUserRole()
-  const navigate = useNavigate()
+  const { userRole, isLoading } = useUserRole();
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (userRole === "organizer") {
-        navigate("/dashboard/organizer-dashboard", { replace: true })
-      } else if (userRole === "participant") {
-        navigate("/dashboard/participant-dashboard", { replace: true })
-      } else {
-        // Fallback for unassigned roles or if role determination fails
-        navigate("/forbidden", { replace: true })
-      }
-    }
-  }, [userRole, isLoading, navigate])
+  if (isLoading) return <Loading message="Loading dashboard..." />;
 
-  return <Loading message="Redirecting to dashboard..." />
-}
+  if (userRole === "organizer") return <OrganizerDashboard />;
+  if (userRole === "participant" || userRole === "user") {
+    return <ParticipantDashboard />;
+  }
+
+  return <Navigate to="/forbidden" />;
+};
 
 export default DashboardHome;

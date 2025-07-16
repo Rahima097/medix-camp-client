@@ -59,7 +59,8 @@ const ManageRegisteredCamps = () => {
   const currentItems = filteredRegistrations.slice(indexOfFirstItem, indexOfLastItem)
 
   const updateConfirmationStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => axios.patch(`/registrations/${id}/confirm`, { status }),
+    mutationFn: ({ id, confirmationStatus }) =>
+      axios.patch(`/registrations/${id}`, { confirmationStatus }),
     onSuccess: () => {
       queryClient.invalidateQueries(["allRegistrations"])
       toast.success("Confirmation status updated!")
@@ -92,7 +93,10 @@ const ManageRegisteredCamps = () => {
 
   const confirmAction = () => {
     if (selectedRegistration) {
-      updateConfirmationStatusMutation.mutate({ id: selectedRegistration._id, status: "confirmed" })
+      updateConfirmationStatusMutation.mutate({
+        id: selectedRegistration._id,
+        confirmationStatus: "confirmed",
+      })
     }
   }
 

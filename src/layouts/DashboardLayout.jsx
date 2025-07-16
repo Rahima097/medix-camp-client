@@ -1,7 +1,6 @@
 import { useState } from "react"
-import { Link, Outlet } from "react-router-dom"
+import { Link, Outlet, useNavigate } from "react-router-dom"
 import {
-  Card,
   Typography,
   List,
   ListItem,
@@ -11,7 +10,6 @@ import {
   Drawer
 } from "@material-tailwind/react"
 import {
-  HomeIcon,
   PowerIcon,
   GlobeAltIcon,
   CalendarDaysIcon,
@@ -25,6 +23,8 @@ import {
 } from "@heroicons/react/24/solid"
 import useAuth from "../hooks/useAuth"
 import useUserRole from "../hooks/useUserRole"
+import useAxios from "../hooks/useAxios"
+import { useQuery } from "@tanstack/react-query"
 import MedixCampLogo from "../pages/shared/MedixCampLogo/MedixCampLogo"
 import Loading from "../components/Loading"
 
@@ -32,15 +32,31 @@ const DashboardLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { user, logOut } = useAuth()
   const { userRole, isLoading } = useUserRole()
-
-  const isOrganizer = userRole === "organizer"
-  const isParticipant = userRole === "participant"
+  const axiosSecure = useAxios()
+  const navigate = useNavigate()
 
   const toggleMobile = () => setMobileOpen(!mobileOpen)
 
-  if (isLoading) {
+  const isOrganizer = userRole === "organizer"
+  const isParticipant = userRole === "participant" || userRole === "user"
+
+  const {
+    data: registrations = [],
+    isLoading: regLoading
+  } = useQuery({
+    queryKey: ["sidebar-registrations", user?.email],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/registrations?email=${user.email}`)
+      return res.data
+    },
+    enabled: !!user?.email && isParticipant
+  })
+
+  if (isLoading || regLoading) {
     return <Loading message="Loading dashboard..." />
   }
+
+  const hasRegistered = registrations.length > 0
 
   const SidebarContent = () => (
     <div className="p-4">
@@ -61,15 +77,7 @@ const DashboardLayout = () => {
         </Typography>
       </div>
       <List>
-        {/* Common Links */}
-        <Link to="/dashboard">
-          <ListItem>
-            <ListItemPrefix>
-              <HomeIcon className="h-5 w-5" />
-            </ListItemPrefix>
-            Dashboard Home
-          </ListItem>
-        </Link>
+        {/* Common Link */}
         <Link to="/">
           <ListItem>
             <ListItemPrefix>
@@ -117,23 +125,17 @@ const DashboardLayout = () => {
           </>
         )}
 
-        {/* Participant Links */}
-        {isParticipant && (
+        {/* Participant Links (Only after registration) */}
+        {isParticipant && hasRegistered && (
+
           <>
+            
             <Link to="/dashboard/participant-profile">
               <ListItem>
                 <ListItemPrefix>
                   <UsersIcon className="h-5 w-5" />
                 </ListItemPrefix>
                 Profile
-              </ListItem>
-            </Link>
-            <Link to="/available-camps">
-              <ListItem>
-                <ListItemPrefix>
-                  <CalendarDaysIcon className="h-5 w-5" />
-                </ListItemPrefix>
-                Join A Camp
               </ListItem>
             </Link>
             <Link to="/dashboard/registered-camps">
@@ -163,8 +165,29 @@ const DashboardLayout = () => {
           </>
         )}
 
+        {/* Join Camp link is always shown for unregistered participants */}
+        {isParticipant && (
+          <Link to="/available-camps">
+            <ListItem>
+              <ListItemPrefix>
+                <CalendarDaysIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              Join A Camp
+            </ListItem>
+          </Link>
+        )}
+
         {/* Logout */}
-        <ListItem onClick={logOut}>
+        <ListItem
+          onClick={async () => {
+            try {
+              await logOut()
+              navigate("/") // ✅ Redirect to homepage after logout
+            } catch (err) {
+              console.error("Logout failed:", err)
+            }
+          }}
+        >
           <ListItemPrefix>
             <PowerIcon className="h-5 w-5" />
           </ListItemPrefix>
@@ -206,4 +229,4 @@ const DashboardLayout = () => {
   )
 }
 
-export default DashboardLayout;
+export default DashboardLayout

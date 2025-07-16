@@ -12,13 +12,13 @@ import Forbidden from "./../pages/Forbidden/Forbidden"
 // Dashboard Layouts and Components
 import DashboardLayout from "../layouts/DashboardLayout"
 import DashboardHome from "../pages/Dashboard/DashboardHome"
-import OrganizerDashboard from "../pages/Organizer/OrganizerDashboard"
+// import OrganizerDashboard from "../pages/Organizer/OrganizerDashboard"
 import OrganizerProfile from "../pages/Organizer/OrganizerProfile"
 import AddCamp from "../pages/Organizer/AddCamp"
 import ManageCamps from "../pages/Organizer/ManageCamps"
 import ManageRegisteredCamps from "../pages/Organizer/ManageRegisteredCamps"
 
-import ParticipantDashboard from "../pages/Participant/ParticipantDashboard"
+// import ParticipantDashboard from "../pages/Participant/ParticipantDashboard"
 import ParticipantProfile from "../pages/Participant/ParticipantProfile"
 import RegisteredCamps from "../pages/Participant/RegisteredCamps"
 import PaymentHistory from "../pages/Participant/PaymentHistory"
@@ -66,7 +66,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  // Dashboard Routes 
+   // Dashboard Routes
   {
     path: "/dashboard",
     element: (
@@ -75,20 +75,13 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      // Common Dashboard Home 
+      // Dashboard Home (Renders based on role)
       {
         index: true,
         element: <DashboardHome />,
       },
+
       // Organizer Routes
-      {
-        path: "organizer-dashboard", 
-        element: (
-          <OrganizerRoute>
-            <OrganizerDashboard />
-          </OrganizerRoute>
-        ),
-      },
       {
         path: "organizer-profile",
         element: (
@@ -121,23 +114,8 @@ export const router = createBrowserRouter([
           </OrganizerRoute>
         ),
       },
+
       // Participant Routes
-      {
-        path: "participant-dashboard", 
-        element: (
-          <ParticipantRoute>
-            <ParticipantDashboard />
-          </ParticipantRoute>
-        ),
-      },
-      {
-        path: "analytics",
-        element: (
-          <ParticipantRoute>
-            <Analytics />
-          </ParticipantRoute>
-        ),
-      },
       {
         path: "participant-profile",
         element: (
@@ -163,6 +141,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "analytics",
+        element: (
+          <ParticipantRoute>
+            <Analytics />
+          </ParticipantRoute>
+        ),
+      },
+      {
         path: "payment/:registrationId",
         element: (
           <ParticipantRoute>
@@ -172,13 +158,8 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  // Error and Forbidden Pages
-  {
-    path: "/forbidden",
-    element: <Forbidden />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
-  },
+
+  // Error Routes
+  { path: "/forbidden", element: <Forbidden /> },
+  { path: "*", element: <NotFound /> },
 ])

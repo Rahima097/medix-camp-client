@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import useAxios from "../../hooks/useAxios"
@@ -109,25 +107,24 @@ const AvailableCamps = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 p-4 bg-white rounded-xl shadow-lg">
           <div className="flex items-center bg-gray-50 rounded-full px-4 py-2 w-full md:w-1/2 lg:w-2/5">
             {" "}
-            {/* Adjusted search width */}
-            <FaSearch className="text-gray-500 mr-3 text-lg" />
+            <FaSearch className="text-blue-600 mr-3 text-lg" />
             <Input
               variant="static"
               placeholder="Search by camp name, venue, or doctor..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="border-none focus:ring-0 text-gray-800 placeholder-gray-500"
+              className="border-none focus:ring-0 mb-3 text-gray-800 placeholder-gray-500"
               containerProps={{ className: "min-w-0" }}
             />
           </div>
           <div className="flex items-center gap-4 w-full md:w-1/2 lg:w-3/5 justify-end">
             {" "}
-            {/* Adjusted sort width and alignment */}
+
             <Select
               label="Sort by"
               value={sortOption}
               onChange={(v) => setSortOption(v)}
-              className="bg-gray-50 rounded-lg shadow-sm text-gray-800 w-full md:w-auto" // Made sort wider
+              className="bg-gray-50 rounded-lg shadow-sm text-gray-800 w-full md:w-48 lg:w-64"
               labelProps={{ className: "text-gray-600" }}
             >
               <Option value="">Default</Option>
@@ -158,9 +155,8 @@ const AvailableCamps = () => {
 
         {/* Camps Grid */}
         <div
-          className={`grid gap-8 ${
-            layout === "grid-3" ? "sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-1 md:grid-cols-2"
-          }`}
+          className={`grid gap-8 ${layout === "grid-3" ? "sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-1 md:grid-cols-2"
+            }`}
         >
           {filtered.length > 0 ? (
             filtered.map((camp) => (

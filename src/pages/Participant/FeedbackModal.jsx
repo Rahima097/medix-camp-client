@@ -37,7 +37,7 @@ const FeedbackModal = ({ open, handleOpen, camp, onSubmit, isSubmitting }) => {
       campName: camp.campName,
       participantName: camp.participantName,
       participantEmail: camp.participantEmail,
-      participantPhoto: camp.participantPhoto, // Assuming this is available in the registration object
+      participantPhoto: camp.participantPhoto, 
       rating: data.rating,
       comment: data.comment,
       createdAt: new Date().toISOString(),

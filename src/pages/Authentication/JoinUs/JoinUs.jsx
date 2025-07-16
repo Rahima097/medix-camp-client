@@ -14,7 +14,7 @@ const JoinUs = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const from = location.state?.from?.pathname || "/"
+  const from = location.state?.from?.pathname ?? "/dashboard"
 
   const {
     register,
@@ -26,9 +26,11 @@ const JoinUs = () => {
     setIsLoading(true)
     try {
       await signIn(data.email, data.password)
-      navigate(from, { replace: true })
+      // toast.success("Login successful!")
+      navigate("/dashboard", { replace: true })
     } catch (error) {
       console.error("Login error:", error)
+      toast.error("Login failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -38,8 +40,8 @@ const JoinUs = () => {
     setIsLoading(true)
     try {
       await googleSignIn()
-      toast.success("Google Signed in successfully!")
-      navigate(from, { replace: true })
+      // toast.success("Google Signed in successfully!")
+      navigate("/dashboard", { replace: true })
     } catch (error) {
       console.error("Google sign in error:", error)
     } finally {
@@ -236,7 +238,7 @@ const JoinUs = () => {
             <CardFooter className="pt-0 pb-6">
               <Typography variant="small" className="mt-6 flex justify-center text-gray-600">
                 Don't have an account?
-                <Link to="/register" state={{ from: location.state?.from || location }} className="ml-2 font-bold text-blue-600 hover:text-blue-800">
+                <Link to="/register" className="ml-2 font-bold text-blue-600 hover:text-blue-800">
                   Register
                 </Link>
               </Typography>

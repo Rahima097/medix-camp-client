@@ -1,282 +1,289 @@
-"use client"
-
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import {
   Card,
-  CardHeader,
   CardBody,
   Typography,
+  Input,
   Button,
+  Spinner,
+  Avatar,
+  CardHeader,
   Dialog,
   DialogHeader,
   DialogBody,
   DialogFooter,
-  Input,
-  Avatar,
-  Spinner,
 } from "@material-tailwind/react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { FaUser, FaUpload, FaEdit } from "react-icons/fa"
+import { PhoneIcon, EnvelopeIcon as HeroIconEnvelope } from "@heroicons/react/24/solid"
 import useAuth from "../../hooks/useAuth"
 import useAxios from "../../hooks/useAxios"
-import { useForm } from "react-hook-form"
 import { toast } from "react-toastify"
-import { FaUpload, FaEnvelope, FaPhone, FaEdit } from "react-icons/fa"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import Loading from "../../components/Loading"
 
 const fetchUserProfile = async (axios, email) => {
   if (!email) return null
-  const res = await axios.get(`/users/${email}`)
+  const res = await axios.get(`/users?email=${email}`)
   return res.data
 }
 
 const OrganizerProfile = () => {
-  const { user } = useAuth()
+  const { user, loading: authLoading, updateUserProfile: updateFirebaseProfile } = useAuth()
   const axios = useAxios()
   const queryClient = useQueryClient()
-  const [showUpdateModal, setShowUpdateModal] = useState(false)
+
+  const [open, setOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    photo: "",
+  })
+  const [selectedFile, setSelectedFile] = useState(null)
   const [imageUploading, setImageUploading] = useState(false)
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm()
-
-  // Fetch user profile data
-  const {
     data: dbUser,
-    isLoading,
-    isError,
-    error,
+    isLoading: isDbUserLoading,
+    isError: isDbUserError,
   } = useQuery({
     queryKey: ["organizerProfile", user?.email],
-    queryFn: async () => {
-      const res = await axios.get(`/users/${user?.email}`)
-      return res.data
+    queryFn: () => fetchUserProfile(axios, user?.email),
+    enabled: !authLoading && !!user?.email,
+    staleTime: 1000 * 60 * 5,
+    onSuccess: (data) => {
+      if (data) {
+        setFormData({
+          name: data.name || user?.displayName || "",
+          email: data.email || user?.email || "",
+          phone: data.phone || "",
+          photo: data.photo || user?.photoURL || "",
+        })
+      }
     },
-    enabled: !!user?.email, // Only run if user email is available
+    onError: (err) => {
+      toast.error("Failed to load profile data.")
+      console.error("Error fetching organizer profile:", err)
+    },
   })
 
-  // Mutation for updating user profile
+  useEffect(() => {
+    if (dbUser) {
+      setFormData((prev) => ({
+        ...prev,
+        name: dbUser.name || user?.displayName || "",
+        email: dbUser.email || user?.email || "",
+        phone: dbUser.phone || "",
+        photo: dbUser.photo || user?.photoURL || "",
+      }))
+    }
+  }, [dbUser, user])
+
+  const handleOpen = () => setOpen((cur) => !cur)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setSelectedFile(file)
+
+    setImageUploading(true)
+    const uploadFormData = new FormData()
+    uploadFormData.append("file", file)
+    uploadFormData.append("upload_preset", "medix_unsigned")
+    uploadFormData.append("folder", "medix/profiles")
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: uploadFormData,
+        }
+      )
+      const data = await res.json()
+      if (data.secure_url) {
+        setFormData((prev) => ({ ...prev, photo: data.secure_url }))
+        toast.success("Profile picture uploaded!")
+      } else {
+        throw new Error("Image URL not returned")
+      }
+    } catch (error) {
+      toast.error("Image upload failed")
+      console.error("Cloudinary Upload Error:", error)
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
   const updateProfileMutation = useMutation({
     mutationFn: async (updatedData) => {
-      const res = await axios.put(`/users/${dbUser._id}`, updatedData)
+      await updateFirebaseProfile(updatedData.name, updatedData.photo)
+      const res = await axios.patch(`/users/${user.email}`, updatedData)
       return res.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["organizerProfile", user?.email])
       toast.success("Profile updated successfully!")
-      setShowUpdateModal(false)
+      setOpen(false)
     },
-    onError: (err) => {
-      toast.error("Failed to update profile: " + (err.response?.data?.message || err.message))
+    onError: (error) => {
+      console.error("Error updating profile:", error)
+      toast.error(error.message || "Failed to update profile.")
     },
   })
 
-  // Effect to pre-fill form when modal opens or dbUser changes
-  useEffect(() => {
-    if (dbUser && showUpdateModal) {
-      setValue("name", dbUser.name || "")
-      setValue("email", dbUser.email || "")
-      setValue("phone", dbUser.phone || "") // Pre-fill phone number
-      setValue("photo", dbUser.photo || "")
-    }
-  }, [dbUser, setValue, showUpdateModal])
-
-  const handleOpenUpdateModal = () => {
-    setShowUpdateModal(true)
+  const handleSubmit = () => {
+    updateProfileMutation.mutate(formData)
   }
 
-  const handleCloseUpdateModal = () => {
-    setShowUpdateModal(false)
-    reset() // Reset form fields when closing
-  }
-
-  const onSubmit = async (data) => {
-    setImageUploading(true)
-    let photoURL = data.photo
-    if (data.photo && data.photo[0]) {
-      const imageFile = data.photo[0]
-      const formData = new FormData()
-      formData.append("image", imageFile)
-
-      try {
-        const imgbbResponse = await axios.post(
-          `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          },
-        )
-        photoURL = imgbbResponse.data.data.url
-      } catch (imgbbError) {
-        toast.error("Failed to upload image. Please try again.")
-        setImageUploading(false)
-        return
-      }
-    }
-    setImageUploading(false)
-
-    const updatedData = {
-      name: data.name,
-      email: data.email, // Email is read-only but included for consistency
-      phone: data.phone, // Include phone in update payload
-      photo: photoURL,
-    }
-    updateProfileMutation.mutate(updatedData)
-  }
-
-  if (isLoading) {
-    return <Spinner className="h-12 w-12 mx-auto mt-20" />
-  }
-
-  if (isError) {
+  if (authLoading || isDbUserLoading) return <Loading message="Loading profile..." />
+  if (isDbUserError || !dbUser)
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Typography variant="h6" color="red">
-          Error loading profile: {error.message}
-        </Typography>
-      </div>
+      <Typography color="red" className="text-center mt-20">
+        Error loading profile.
+      </Typography>
     )
-  }
-
-  if (!dbUser) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Typography variant="h6" color="blue-gray">
-          No profile data found.
-        </Typography>
-      </div>
-    )
-  }
 
   return (
-    <div className="p-4 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <Card className="w-full max-w-2xl mx-auto shadow-xl rounded-lg overflow-hidden">
-        <CardHeader
-          color="blue"
-          className="relative h-56 flex flex-col items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800 p-6"
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-8">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-3xl mx-auto"
         >
-          <Avatar
-            src={dbUser?.photo || "/placeholder.svg?height=150&width=150"}
-            alt="profile-picture"
-            size="xxl"
-            className="rounded-full border-4 border-white shadow-lg mb-4"
-          />
-          <Typography variant="h3" color="white" className="font-bold">
-            {dbUser?.name || "Organizer Name"}
-          </Typography>
-        </CardHeader>
-        <CardBody className="p-8 text-center">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="flex items-center justify-center gap-3">
-              <FaEnvelope className="h-6 w-6 text-blue-gray-500" />
-              <div>
-                <Typography variant="h6" color="blue-gray" className="mb-1">
-                  Email:
-                </Typography>
-                <Typography variant="paragraph" color="gray">
-                  {dbUser?.email}
-                </Typography>
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-3">
-              <FaPhone className="h-6 w-6 text-blue-gray-500" />
-              <div>
-                <Typography variant="h6" color="blue-gray" className="mb-1">
-                  Phone:
-                </Typography>
-                <Typography variant="paragraph" color="gray">
-                  {dbUser?.phone || "N/A"}
-                </Typography>
-              </div>
-            </div>
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 rounded-2xl shadow-lg mb-4"
+            >
+              <FaUser className="h-8 w-8 text-white" />
+            </motion.div>
+            <Typography variant="h2" className="font-bold text-gray-800 mb-2">
+              Organizer Profile
+            </Typography>
+            <Typography className="text-gray-600 max-w-2xl mx-auto">
+              Manage your personal information and contact details.
+            </Typography>
           </div>
-          <Button color="blue" onClick={handleOpenUpdateModal} className="shadow-md hover:shadow-lg">
-            <FaEdit className="inline-block mr-2 h-5 w-5" /> Update Profile
-          </Button>
-        </CardBody>
-      </Card>
-
-      {/* Update Profile Modal */}
-      <Dialog open={showUpdateModal} handler={handleCloseUpdateModal} size="md" className="mx-auto ">
-        <DialogHeader className="flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-lg">
-          <Typography variant="h5" color="white">
-            Update Profile
-          </Typography>
-          <Button variant="text" color="white" onClick={handleCloseUpdateModal} className="!p-0 text-lg">
-            X
-          </Button>
-        </DialogHeader>
-        <DialogBody divider className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex flex-col items-center mb-6">
-              <Avatar
-                src={
-                  dbUser?.photo ||
-                  user?.photoURL ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(dbUser?.name || "User")}&background=0ea5e9&color=fff`
-                }
-                size="xl"
-                className="border-4 w-20 h-20 border-white shadow-md mb-4 rounded-full"
-              />
-              <label
-                htmlFor="profile-upload"
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 cursor-pointer"
-              >
-                {imageUploading ? <Spinner size="sm" /> : <FaUpload />}
-                <Typography variant="small">{imageUploading ? "Uploading..." : "Change Photo"}</Typography>
-              </label>
-              <input id="profile-upload" type="file" accept="image/*" {...register("photo")} className="hidden" />
-            </div>
-            <div>
-              <Input
-                label="Name"
-                {...register("name", { required: "Name is required" })}
-                error={!!errors.name}
-                className="mb-2"
-              />
-              {errors.name && (
-                <Typography color="red" className="text-sm">
-                  {errors.name.message}
-                </Typography>
-              )}
-            </div>
-            <div>
-              <Input label="Email" {...register("email")} disabled className="mb-2" />
-              <Typography color="gray" className="text-xs mt-1">
-                Email cannot be changed.
+          <Card className="shadow-2xl border-0 overflow-hidden">
+            <CardHeader
+              variant="gradient"
+              className="mb-0 p-6 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700"
+            >
+              <Typography variant="h4" color="white" className="flex items-center gap-3">
+                <FaEdit className="h-6 w-6" />
+                Your Profile
               </Typography>
-            </div>
-            <div>
-              <Input
-                label="Phone Number"
-                {...register("phone", { required: "Phone number is required" })}
-                error={!!errors.phone}
-                className="mb-2"
-              />
-              {errors.phone && (
-                <Typography color="red" className="text-sm">
-                  {errors.phone.message}
-                </Typography>
-              )}
-            </div>
-          </form>
+              <Typography variant="small" color="white" className="opacity-80 mt-1">
+                View your details below.
+              </Typography>
+            </CardHeader>
+            <CardBody className="p-8 flex flex-col items-center text-center">
+              <div className="relative mb-4">
+                <Avatar
+                  src={
+                    dbUser.photo ||
+                    user?.photoURL ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(dbUser.name || "User")}&background=5b21b6&color=fff`
+                  }
+                  alt="profile-picture"
+                  size="xxl"
+                  className="border-4 w-24 h-24 rounded-full border-white shadow-lg shadow-blue-500/25"
+                />
+              </div>
+              <Typography variant="h4" color="blue" className="mb-2">
+                {dbUser.name || user?.displayName || "Organizer"}
+              </Typography>
+              <Typography color="gray" className="font-normal mb-4">
+                Organizer, MedixCare
+              </Typography>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md text-left">
+                <div className="flex items-center gap-2">
+                  <HeroIconEnvelope className="h-5 w-5 text-blue-600" />
+                  <Typography variant="paragraph" color="blue">
+                    Email: {dbUser.email || user?.email}
+                  </Typography>
+                </div>
+                <div className="flex items-center gap-2">
+                  <PhoneIcon className="h-5 w-5 text-blue-600" />
+                  <Typography variant="paragraph" color="blue">
+                    Phone: {dbUser.phone || "N/A"}
+                  </Typography>
+                </div>
+              </div>
+
+              <Button className="mt-6 bg-blue-600 hover:bg-blue-800" onClick={handleOpen}>
+                Update Profile
+              </Button>
+            </CardBody>
+          </Card>
+        </motion.div>
+      </div>
+
+      <Dialog open={open} handler={handleOpen} size="lg">
+        <DialogHeader className="bg-blue-600 text-white">Update Profile</DialogHeader>
+        <DialogBody divider>
+          <div className="flex flex-col items-center mb-6">
+            <Avatar
+              src={
+                formData.photo ||
+                user?.photoURL ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || "User")}&background=5b21b6&color=fff`
+              }
+              alt="current-image"
+              size="lg"
+              className="border-4 w-24 h-24 rounded-full border-white shadow-md mb-4"
+            />
+            <label
+              htmlFor="profile-upload-dialog"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-700 to-blue-600 text-white rounded-lg hover:from-blue-800 cursor-pointer"
+            >
+              {imageUploading ? <Spinner size="sm" /> : <FaUpload />}
+              <Typography variant="small">{imageUploading ? "Uploading..." : "Change Photo"}</Typography>
+            </label>
+            <input
+              id="profile-upload-dialog"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 py-3 gap-4">
+            <Input label="Name" name="name" value={formData.name} onChange={handleChange} />
+            <Input
+              label="Phone Number"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+            />
+            <Input label="Email" name="email" value={formData.email} disabled />
+          </div>
         </DialogBody>
-        <DialogFooter className="flex justify-end gap-2 p-4">
-          <Button variant="text" color="red" onClick={handleCloseUpdateModal}>
+        <DialogFooter>
+          <Button variant="text" color="red" onClick={handleOpen} className="mr-1">
             Cancel
           </Button>
           <Button
             variant="gradient"
             color="blue"
-            onClick={handleSubmit(onSubmit)}
-            disabled={updateProfileMutation.isPending || imageUploading}
+            className="bg-blue-600"
+            onClick={handleSubmit}
+            disabled={updateProfileMutation.isLoading || imageUploading}
           >
-            {updateProfileMutation.isPending ? "Updating..." : "Update Profile"}
+            {updateProfileMutation.isLoading ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
       </Dialog>

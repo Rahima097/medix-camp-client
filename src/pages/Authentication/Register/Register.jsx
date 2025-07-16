@@ -38,8 +38,8 @@ const Register = () => {
   const { createUser, googleSignIn, updateUserProfile } = useAuth();
   const axiosInstance = useAxios();
   const navigate = useNavigate();
-  const location = useLocation(); // 🟢 added
-  const from = location.state?.from?.pathname || "/"; // 🟢 added
+  const location = useLocation(); 
+  const from = location.state?.from?.pathname || "/dashboard"; 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleImageUpload = async (e) => {
