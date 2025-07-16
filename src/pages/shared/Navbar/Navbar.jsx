@@ -164,7 +164,7 @@ const Navbar = () => {
                 profileMenu
               ) : (
                 <>
-                  <Link to="/join-us">
+                  {/* <Link to="/join-us">
                     <Button
                       variant="text"
                       size="sm"
@@ -173,7 +173,7 @@ const Navbar = () => {
                       <FaSignInAlt className="h-4 w-4" />
                       Sign In
                     </Button>
-                  </Link>
+                  </Link> */}
                   <Link to="/register">
                     <Button
                       size="sm"
@@ -217,7 +217,7 @@ const Navbar = () => {
                     {navList}
                     {!user && (
                       <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-gray-200">
-                        <Link to="/join-us" className="w-full">
+                        {/* <Link to="/join-us" className="w-full">
                           <Button
                             variant="outlined"
                             size="sm"
@@ -227,7 +227,7 @@ const Navbar = () => {
                             <FaSignInAlt className="h-4 w-4" />
                             Sign In
                           </Button>
-                        </Link>
+                        </Link> */}
                         <Link to="/register" className="w-full">
                           <Button
                             fullWidth

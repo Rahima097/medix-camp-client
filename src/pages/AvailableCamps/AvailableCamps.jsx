@@ -124,7 +124,7 @@ const AvailableCamps = () => {
               label="Sort by"
               value={sortOption}
               onChange={(v) => setSortOption(v)}
-              className="bg-gray-50 rounded-lg shadow-sm text-gray-800 w-full md:w-48 lg:w-64"
+              className="bg-gray-50 text-center pb-3 rounded-lg shadow-sm text-gray-800 w-full md:w-48 lg:w-68"
               labelProps={{ className: "text-gray-600" }}
             >
               <Option value="">Default</Option>
