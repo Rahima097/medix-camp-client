@@ -77,7 +77,6 @@ const DashboardLayout = () => {
         </Typography>
       </div>
       <List>
-        {/* Common Link */}
         <Link to="/">
           <ListItem>
             <ListItemPrefix>
@@ -87,7 +86,6 @@ const DashboardLayout = () => {
           </ListItem>
         </Link>
 
-        {/* Organizer Links */}
         {isOrganizer && (
           <>
             <Link to="/dashboard/organizer-profile">
@@ -125,11 +123,8 @@ const DashboardLayout = () => {
           </>
         )}
 
-        {/* Participant Links (Only after registration) */}
         {isParticipant && hasRegistered && (
-
           <>
-            
             <Link to="/dashboard/participant-profile">
               <ListItem>
                 <ListItemPrefix>
@@ -165,7 +160,6 @@ const DashboardLayout = () => {
           </>
         )}
 
-        {/* Join Camp link is always shown for unregistered participants */}
         {isParticipant && (
           <Link to="/available-camps">
             <ListItem>
@@ -177,12 +171,11 @@ const DashboardLayout = () => {
           </Link>
         )}
 
-        {/* Logout */}
         <ListItem
           onClick={async () => {
             try {
               await logOut()
-              navigate("/") // ✅ Redirect to homepage after logout
+              navigate("/")
             } catch (err) {
               console.error("Logout failed:", err)
             }
@@ -199,21 +192,24 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Toggle Button */}
       <div className="md:hidden fixed top-2 left-2 z-50">
         <IconButton variant="text" onClick={toggleMobile}>
           <Bars3Icon className="h-6 w-6" />
         </IconButton>
       </div>
 
-      <Drawer open={mobileOpen} onClose={toggleMobile} className="p-4">
-        <div className="flex justify-between items-center mb-4">
+      {/* Mobile Sidebar Drawer (Scrollable) */}
+      <Drawer open={mobileOpen} onClose={toggleMobile} className="p-0">
+        <div className="flex justify-between items-center px-4 pt-4 pb-2">
           <MedixCampLogo />
           <IconButton variant="text" onClick={toggleMobile}>
             <XMarkIcon className="h-6 w-6" />
           </IconButton>
         </div>
-        <SidebarContent />
+        <div className="overflow-y-auto h-[calc(100vh-60px)] px-4">
+          <SidebarContent />
+        </div>
       </Drawer>
 
       {/* Desktop Sidebar */}
