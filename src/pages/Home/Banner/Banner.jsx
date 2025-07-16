@@ -100,7 +100,7 @@ const Banner = () => {
                         color="white"
                         className="border-white px-4 py-2 text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300"
                       >
-                        Join as Organizer
+                        Join Now
                       </Button>
                     </Link>
                   </div>

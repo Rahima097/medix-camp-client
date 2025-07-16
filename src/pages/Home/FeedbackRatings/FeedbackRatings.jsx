@@ -1,5 +1,3 @@
-"use client"
-
 import { motion } from "framer-motion"
 import { useQuery } from "@tanstack/react-query"
 import { Card, CardBody, Typography, Avatar } from "@material-tailwind/react"
@@ -14,7 +12,9 @@ const FeedbackRatings = () => {
     queryKey: ["feedbacks"],
     queryFn: async () => {
       const res = await axios.get("/feedbacks")
-      return res.data.slice(0, 6) // Show latest 6 feedbacks
+      return res.data
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort newest first
+        .slice(0, 6) // Take latest 6
     },
   })
 
@@ -83,7 +83,9 @@ const FeedbackRatings = () => {
                       </Typography>
                     </div>
 
-                    <Typography className="text-gray-700 leading-relaxed">"{feedback.comment}"</Typography>
+                    <Typography className="text-gray-700 leading-relaxed">
+                      "{feedback.comment}"
+                    </Typography>
 
                     <Typography variant="small" className="text-gray-500 mt-3">
                       {new Date(feedback.createdAt).toLocaleDateString()}
