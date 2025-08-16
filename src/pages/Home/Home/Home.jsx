@@ -6,6 +6,7 @@ import HealthTips from '../HealthTips/HealthTips';
 import OurTeam from '../OurTeam/OurTeam';
 import FAQ from '../FAQ/FAQ';
 import About from '../About/About';
+import Achievements from '../Achievements/Achievements';
 
 const Home = () => {
     return (
@@ -13,11 +14,11 @@ const Home = () => {
             <Banner></Banner>
             <PopularCamps></PopularCamps>
             <About></About>
+            <Achievements></Achievements>
             <FeedbackRatings></FeedbackRatings>
             <HealthTips></HealthTips>
             <OurTeam></OurTeam>
-            <FAQ></FAQ>
-            
+            <FAQ></FAQ> 
         </div>
     );
 };

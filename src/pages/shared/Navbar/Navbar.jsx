@@ -18,7 +18,7 @@ import {
   Cog6ToothIcon,
   PowerIcon,
 } from "@heroicons/react/24/outline";
-import { FaCalendarAlt, FaUsers, FaHome, FaSignInAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaUsers, FaHome, FaInfoCircle } from "react-icons/fa";
 import MedixCampLogo from "../MedixCampLogo/MedixCampLogo";
 import useAuth from "../../../hooks/useAuth";
 
@@ -57,7 +57,7 @@ const Navbar = () => {
   const navItems = [
     { name: "Home", path: "/", icon: FaHome },
     { name: "Available Camps", path: "/available-camps", icon: FaCalendarAlt },
-    { name: "About Us", path: "/about-us", icon: FaCalendarAlt },
+    { name: "About Us", path: "/about-us", icon: FaInfoCircle },
   ];
 
   const navList = (

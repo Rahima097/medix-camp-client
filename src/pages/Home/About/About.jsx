@@ -3,7 +3,7 @@ import { Typography } from "@material-tailwind/react";
 
 const About = () => {
     return (
-        <section className="bg-gradient-to-br from-blue-50 via-white to-blue-100 py-20 px-6">
+        <section className="bg-white py-20 px-6">
       
       {/* Top Section: Image Left, Text Right */}
       <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center mb-20">

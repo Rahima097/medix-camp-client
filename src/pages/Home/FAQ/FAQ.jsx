@@ -40,7 +40,7 @@ const FAQ = () => {
           >
             Frequently Asked Questions
           </Typography>
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center">
         {/* Left Image */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
