@@ -69,7 +69,7 @@ const DashboardLayout = () => {
           }
           alt="profile"
           size="lg"
-          className="h-20 w-20 mx-auto border-2 border-blue-gray-100 my-4"
+          className="h-20 w-20 mx-auto rounded-full border-2 border-blue-gray-100 my-4"
         />
         <Typography variant="h6">{user?.displayName?.split(" ")[0] || "User"}</Typography>
         <Typography variant="small" color="gray">
@@ -88,6 +88,14 @@ const DashboardLayout = () => {
 
         {isOrganizer && (
           <>
+          <Link to="/dashboard/organizer-overview">
+              <ListItem>
+                <ListItemPrefix>
+                  <ChartBarIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Overview
+              </ListItem>
+            </Link>
             <Link to="/dashboard/organizer-profile">
               <ListItem>
                 <ListItemPrefix>
@@ -125,6 +133,14 @@ const DashboardLayout = () => {
 
         {isParticipant && hasRegistered && (
           <>
+            <Link to="/dashboard/participant-overview">
+              <ListItem>
+                <ListItemPrefix>
+                  <ChartBarIcon className="h-5 w-5" />
+                </ListItemPrefix>
+                Overview
+              </ListItem>
+            </Link>
             <Link to="/dashboard/participant-profile">
               <ListItem>
                 <ListItemPrefix>

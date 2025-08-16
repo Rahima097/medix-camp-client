@@ -30,6 +30,8 @@ import PrivateRoute from "../routes/PrivateRoute"
 import OrganizerRoute from "../routes/OrganizerRoute"
 import ParticipantRoute from "../routes/ParticipantRoute"
 import AboutUs from "../pages/AboutUs/AboutUs"
+import OrganizerOverview from "../pages/Organizer/OrganizerOverview"
+import ParticipantOverview from "../pages/Participant/ParticipantOverview"
 
 
 export const router = createBrowserRouter([
@@ -96,6 +98,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "organizer-overview",
+        element: (
+          <OrganizerRoute>
+            <OrganizerOverview></OrganizerOverview>
+          </OrganizerRoute>
+        ),
+      },
+      {
         path: "add-camp",
         element: (
           <OrganizerRoute>
@@ -126,6 +136,14 @@ export const router = createBrowserRouter([
         element: (
           <ParticipantRoute>
             <ParticipantProfile />
+          </ParticipantRoute>
+        ),
+      },
+      {
+        path: "participant-overview",
+        element: (
+          <ParticipantRoute>
+            <ParticipantOverview></ParticipantOverview>
           </ParticipantRoute>
         ),
       },
