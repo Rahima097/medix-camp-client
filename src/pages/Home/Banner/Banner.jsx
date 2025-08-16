@@ -14,7 +14,7 @@ const Banner = () => {
       id: 1,
       title: "Transforming Lives Through Healthcare",
       subtitle: "Join our medical camps and make a difference in your community",
-      image: "https://i.ibb.co/qLd6Qq74/OIP-1-1.jpg",
+      image: "https://i.ibb.co.com/qMD65Ws4/portrait-smiling-young-doctors-standing-together-portrait-medical-staff-inside-modern-hospital-smili.jpg",
       stats: "10,000+ Lives Touched",
     },
     {
@@ -28,7 +28,7 @@ const Banner = () => {
       id: 3,
       title: "Building Healthier Communities",
       subtitle: "Comprehensive health screenings and preventive care programs",
-      image: "https://i.ibb.co/7NZWZ26H/cdc-fx9-RJg-ZYRUE-unsplash-1.jpg",
+      image: "https://i.ibb.co.com/yBRnz2wT/about-hero.jpg",
       stats: "200+ Successful Camps",
     },
   ];
@@ -49,7 +49,7 @@ const Banner = () => {
               <img
                 src={slide.image}
                 alt={slide.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-center object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40" />
 
