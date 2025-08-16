@@ -11,7 +11,7 @@ const achievements = [
 const Achievements = () => {
   return (
     <section className="bg-gradient-to-br from-blue-50 via-white to-blue-100 py-20 px-6">
-      <div className="max-w-7xl mx-auto text-center">
+      <div className="container mx-auto text-center">
         <Typography variant="h3" className="text-gray-800 font-bold text-4xl mb-12">
           Our Achievements
         </Typography>

@@ -76,13 +76,13 @@ const NotFound = () => {
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Link to="/">
-            <Button size="lg" className="bg-gradient-to-r from-primary-500 to-primary-600 flex items-center gap-2">
+            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg flex items-center px-4 py-3 gap-2">
               <FaHome />
               Back to Home
             </Button>
           </Link>
           <Link to="/available-camps">
-            <Button size="lg" variant="outlined" color="blue-gray" className="flex items-center gap-2">
+            <Button size="lg" variant="outlined" color="blue-gray" className="bg-gradient-to-r from-white to-white hover:from-blue-700 hover:to-indigo-800 hover:text-white transition-all duration-300 ease-in-out shadow-md hover:shadow-lg flex items-center px-4 py-3 gap-2">
               <FaSearch />
               Browse Camps
             </Button>

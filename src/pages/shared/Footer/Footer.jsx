@@ -24,26 +24,22 @@ const Footer = () => {
       links: [
         { name: "Home", href: "/" },
         { name: "Available Camps", href: "/available-camps" },
-        { name: "About Us", href: "/about" },
-        { name: "Contact", href: "/contact" },
+        { name: "About Us", href: "/about-us" },
       ],
     },
     {
       title: "For Participants",
       links: [
-        { name: "Join Camp", href: "/available-camps" },
-        { name: "My Dashboard", href: "/participant-dashboard" },
-        { name: "Health Records", href: "/participant-dashboard/health-records" },
-        { name: "Payment History", href: "/participant-dashboard/payment-history" },
+        { name: "Join us", href: "/join-us" },
+        { name: "Register", href: "/register" },
+      
       ],
     },
     {
       title: "For Organizers",
       links: [
-        { name: "Add Camp", href: "/organizer-dashboard/add-camp" },
-        { name: "Manage Camps", href: "/organizer-dashboard/manage-camps" },
-        { name: "Analytics", href: "/organizer-dashboard/analytics" },
-        { name: "Support", href: "/support" },
+        { name: "Join us", href: "/join-us" },
+        { name: "Register", href: "/register" },
       ],
     },
   ];
@@ -217,7 +213,7 @@ const Footer = () => {
         <div className="container w-11/12 mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <small className="text-gray-400">
-              © {currentYear} Medix Care. All rights reserved. | Privacy Policy | Terms of Service
+              © {currentYear} Medix Care. All rights reserved.
             </small>
             <div className="flex items-center gap-2 text-gray-400">
               <small>Made with</small>
