@@ -57,6 +57,7 @@ const Navbar = () => {
   const navItems = [
     { name: "Home", path: "/", icon: FaHome },
     { name: "Available Camps", path: "/available-camps", icon: FaCalendarAlt },
+    { name: "About Us", path: "/about-us", icon: FaCalendarAlt },
   ];
 
   const navList = (

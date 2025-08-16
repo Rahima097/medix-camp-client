@@ -29,6 +29,7 @@ import PaymentPage from "../pages/Participant/PaymentPage"
 import PrivateRoute from "../routes/PrivateRoute"
 import OrganizerRoute from "../routes/OrganizerRoute"
 import ParticipantRoute from "../routes/ParticipantRoute"
+import AboutUs from "../pages/AboutUs/AboutUs"
 
 
 export const router = createBrowserRouter([
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
       {
         path: "camp-details/:campId",
         element: <CampDetails />,
+      },
+       {
+        path: "about-us",
+        element: <AboutUs></AboutUs>,
       },
     ],
   },
