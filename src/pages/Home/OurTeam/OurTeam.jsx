@@ -16,7 +16,7 @@ const OurTeam = () => {
             <Typography variant="h3" className="text-center mb-12 font-bold text-gray-800">
                 Meet Our Team
             </Typography>
-            <div className="grid md:grid-cols-5 gap-8">
+            <div className="grid sm:grid-cols-3 md:grid-cols-5 gap-8">
                 {doctors.map((doc, idx) => (
                     <Card key={idx} className="bg-white shadow-lg hover:shadow-xl rounded-2xl transition-all duration-300">
                         <img
