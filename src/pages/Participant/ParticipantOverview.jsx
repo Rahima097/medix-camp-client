@@ -1,11 +1,6 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import useAxios from "../../hooks/useAxios";
 import useAuth from "../../hooks/useAuth";
-import axios from "axios";
-import {
-  Card,
-  CardBody,
-  Typography,
-} from "@material-tailwind/react";
 import {
   PieChart,
   Pie,
@@ -18,81 +13,76 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
+import { Card, CardBody, Typography } from "@material-tailwind/react";
+import Loading from "../../components/Loading";
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A855F7", "#F87171"];
 
 const ParticipantOverview = () => {
+  const axiosSecure = useAxios();
   const { user } = useAuth();
-  const [registrations, setRegistrations] = useState([]);
-  const [payments, setPayments] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user?.email) return;
+  // Fetch registrations
+  const { data: registrations = [], isLoading: regLoading } = useQuery({
+    queryKey: ["participant-registrations"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/registrations");
+      return res.data;
+    },
+  });
 
-    const fetchData = async () => {
-      try {
-        const [regRes, payRes] = await Promise.all([
-          axios.get(`http://localhost:5000/registrations?email=${user.email}`),
-          axios.get(`http://localhost:5000/payments?email=${user.email}`),
-        ]);
-        setRegistrations(regRes.data);
-        setPayments(payRes.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching participant data:", err);
-      }
-    };
+  // Fetch payments
+  const { data: payments = [], isLoading: payLoading } = useQuery({
+    queryKey: ["participant-payments"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/payments");
+      return res.data;
+    },
+  });
 
-    fetchData();
-  }, [user.email]);
+  if (regLoading || payLoading) return <Loading message="Loading overview..." />;
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  // Filter only current participant's data
+  const userEmail = user?.email;
+  const userRegistrations = registrations.filter(r => r.participantEmail === userEmail);
+  const userPayments = payments.filter(p => p.participantEmail === userEmail);
 
-  // Total stats
-  const totalCamps = registrations.length;
-  const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  // Stats
+  const totalCamps = userRegistrations.length;
+  const totalPaid = userPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
 
   // Chart data
-  const paymentData = payments.map((p) => ({
-    name: p.campName,
-    value: p.amount,
-  }));
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A855F7", "#F87171"];
+  const paymentData = userPayments.map(p => ({ name: p.campName, value: Number(p.amount || 0) }));
+  const registrationData = userRegistrations.map(r => ({ name: r.campName, count: 1 }));
 
   return (
-    <div className="p-4 md:p-6">
-      <Typography variant="h4" className="mb-6 font-bold text-blue-600">
+    <div className="p-6 space-y-8">
+      <Typography variant="h4" className="text-center font-bold text-blue-600">
         Participant Overview
       </Typography>
 
-      {/* Total Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card className="shadow-lg">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
           <CardBody>
             <Typography variant="h6">Total Camps Registered</Typography>
-            <Typography variant="h3" className="mt-2 font-bold text-blue-700">
-              {totalCamps}
-            </Typography>
+            <Typography className="text-2xl font-bold text-blue-500">{totalCamps}</Typography>
           </CardBody>
         </Card>
 
-        <Card className="shadow-lg">
+        <Card>
           <CardBody>
             <Typography variant="h6">Total Amount Paid</Typography>
-            <Typography variant="h3" className="mt-2 font-bold text-green-600">
-              ${totalPaid.toFixed(2)}
-            </Typography>
+            <Typography className="text-2xl font-bold text-green-500">${totalPaid.toFixed(2)}</Typography>
           </CardBody>
         </Card>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Payments Pie Chart */}
-        <Card className="shadow-lg p-4">
-          <Typography variant="h6" className="mb-4">
-            Payments by Camp
-          </Typography>
+        {/* Pie Chart: Payments */}
+        <Card className="p-6">
+          <Typography variant="h6" className="mb-4">Payments by Camp</Typography>
           {paymentData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -103,41 +93,35 @@ const ParticipantOverview = () => {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  fill="#8884d8"
-                  label
+                  label={({ name, value }) => `${name}: $${value}`}
                 >
-                  {paymentData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {paymentData.map((_, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={value => `$${value}`} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p>No payments yet.</p>
+            <p className="text-center">No payments yet.</p>
           )}
         </Card>
 
-        {/* Registrations Bar Chart */}
-        <Card className="shadow-lg p-4">
-          <Typography variant="h6" className="mb-4">
-            Registered Camps
-          </Typography>
-          {registrations.length > 0 ? (
+        {/* Bar Chart: Registrations */}
+        <Card className="p-6">
+          <Typography variant="h6" className="mb-4">Registered Camps</Typography>
+          {registrationData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={registrations.map((r) => ({ name: r.campName, count: 1 }))}
-                margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-              >
+              <BarChart data={registrationData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+                <XAxis dataKey="name" angle={-15} textAnchor="end" height={60} />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Bar dataKey="count" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p>No registrations yet.</p>
+            <p className="text-center">No registrations yet.</p>
           )}
         </Card>
       </div>
